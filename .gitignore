@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+venv/
+backend/venv/
+.venv/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Expo & Mobile App build caches
+.expo/
+dist/
+web-build/
+*.apk
+*.aab
+
+# Python Caches & Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

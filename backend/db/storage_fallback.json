@@ -1,0 +1,401 @@
+[
+  {
+    "id": "COMP-2026-001",
+    "image_url": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80",
+    "category": "overflowing_bin",
+    "volume": "large",
+    "priority_score": 92.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.6093,
+      "lng": 85.1235
+    },
+    "address": "Boring Road Crossing, near Axis Bank, Patna",
+    "timestamp": "2026-08-13T09:15:00Z",
+    "comment": "Commercial street bin overflowing onto pedestrian path. Smells heavily and creating traffic bottleneck.",
+    "reporter_comment": "Commercial street bin overflowing onto pedestrian path. Smells heavily and creating traffic bottleneck.",
+    "recommended_action": "Dispatch Heavy Compactor Truck + 3 Sanitation Workers",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna West Ward 14 Sanitation Unit",
+    "ai_confidence": 96.0
+  },
+  {
+    "id": "COMP-2026-002",
+    "image_url": "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80",
+    "category": "garbage_dump",
+    "volume": "very_large",
+    "priority_score": 96.0,
+    "status": "in_progress",
+    "gps": {
+      "lat": 25.611,
+      "lng": 85.1441
+    },
+    "address": "Gandhi Maidan South Gate, near Mona Cinema, Patna",
+    "timestamp": "2026-08-13T07:45:00Z",
+    "comment": "Massive pile of open mixed garbage dumping near public garden gate. Needs immediate JCB deployment.",
+    "reporter_comment": "Massive pile of open mixed garbage dumping near public garden gate. Needs immediate JCB deployment.",
+    "recommended_action": "Deploy JCB Excavator + 2 Dumper Trucks",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna Central Rapid Response Fleet A",
+    "ai_confidence": 94.0
+  },
+  {
+    "id": "COMP-2026-003",
+    "image_url": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80",
+    "category": "overflowing_bin",
+    "volume": "large",
+    "priority_score": 89.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.6095,
+      "lng": 85.1238
+    },
+    "address": "Boring Road Market Lane, Patna",
+    "timestamp": "2026-08-13T10:02:00Z",
+    "comment": "Overflowing bin reported again at Boring Road crossing.",
+    "reporter_comment": "Overflowing bin reported again at Boring Road crossing.",
+    "recommended_action": "Merge with COMP-2026-001 dispatch route",
+    "is_duplicate": true,
+    "duplicate_of": "COMP-2026-001",
+    "assigned_team": "Patna West Ward 14 Sanitation Unit",
+    "ai_confidence": 98.0
+  },
+  {
+    "id": "COMP-2026-004",
+    "image_url": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
+    "category": "drain_blockage",
+    "volume": "large",
+    "priority_score": 84.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.594,
+      "lng": 85.161
+    },
+    "address": "Kankarbagh Main Road, near Tempo Stand, Patna",
+    "timestamp": "2026-08-12T18:30:00Z",
+    "comment": "Main storm drain clogged with plastic bags and silt. Sewage water starting to overflow onto road.",
+    "reporter_comment": "Main storm drain clogged with plastic bags and silt. Sewage water starting to overflow onto road.",
+    "recommended_action": "Deploy Suction-cum-Jetting Machine + Drain Clearance Crew",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Kankarbagh Drainage Division 3",
+    "ai_confidence": 91.0
+  },
+  {
+    "id": "COMP-2026-005",
+    "image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
+    "category": "construction_debris",
+    "volume": "very_large",
+    "priority_score": 78.0,
+    "status": "in_progress",
+    "gps": {
+      "lat": 25.589,
+      "lng": 85.084
+    },
+    "address": "Danapur Station Road, near Cantonment Board Gate, Patna",
+    "timestamp": "2026-08-12T14:10:00Z",
+    "comment": "Building construction debris dumped illegally on road lane, creating night hazards for two-wheelers.",
+    "reporter_comment": "Building construction debris dumped illegally on road lane, creating night hazards for two-wheelers.",
+    "recommended_action": "Dispatch Flatbed Loader Truck + Notice to Builder",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Danapur Zone Debris Squad",
+    "ai_confidence": 89.0
+  },
+  {
+    "id": "COMP-2026-006",
+    "image_url": "https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?auto=format&fit=crop&w=800&q=80",
+    "category": "plastic_waste",
+    "volume": "medium",
+    "priority_score": 68.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.6125,
+      "lng": 85.129
+    },
+    "address": "Bailey Road, opposite Patna High Court, Patna",
+    "timestamp": "2026-08-13T08:20:00Z",
+    "comment": "Discarded plastic water bottles and snack packaging spread along green belt.",
+    "reporter_comment": "Discarded plastic water bottles and snack packaging spread along green belt.",
+    "recommended_action": "Dispatch Mobile Manual Sweeping Team (2 workers)",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna Central Corridor Sanitation",
+    "ai_confidence": 93.0
+  },
+  {
+    "id": "COMP-2026-007",
+    "image_url": "https://images.unsplash.com/photo-1611284446314-60a55ac0d494?auto=format&fit=crop&w=800&q=80",
+    "category": "organic_waste",
+    "volume": "large",
+    "priority_score": 72.0,
+    "status": "in_progress",
+    "gps": {
+      "lat": 25.607,
+      "lng": 85.151
+    },
+    "address": "Fraser Road Vegetable Market, Patna",
+    "timestamp": "2026-08-13T06:00:00Z",
+    "comment": "Rotting vegetable market waste dumped overnight. High foul odor near commercial shops.",
+    "reporter_comment": "Rotting vegetable market waste dumped overnight. High foul odor near commercial shops.",
+    "recommended_action": "Dispatch Wet Waste Tipper Truck + Disinfectant Spray Unit",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna Central Bio-Waste Team",
+    "ai_confidence": 95.0
+  },
+  {
+    "id": "COMP-2026-008",
+    "image_url": "https://images.unsplash.com/photo-1528323273322-d81458248d40?auto=format&fit=crop&w=800&q=80",
+    "category": "hazardous_waste",
+    "volume": "small",
+    "priority_score": 95.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.626,
+      "lng": 85.112
+    },
+    "address": "Kurji Holy Family Hospital Lane, Patna",
+    "timestamp": "2026-08-13T10:45:00Z",
+    "comment": "Bio-hazard alert: Used syringes and medical gloves discarded in open domestic bin area.",
+    "reporter_comment": "Bio-hazard alert: Used syringes and medical gloves discarded in open domestic bin area.",
+    "recommended_action": "URGENT: Hazardous Bio-Medical Waste Hazmat Team Dispatch",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna Special Bio-Hazard Squad",
+    "ai_confidence": 97.0
+  },
+  {
+    "id": "COMP-2026-009",
+    "image_url": "https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?auto=format&fit=crop&w=800&q=80",
+    "category": "e_waste",
+    "volume": "medium",
+    "priority_score": 54.0,
+    "status": "resolved",
+    "gps": {
+      "lat": 25.618,
+      "lng": 85.109
+    },
+    "address": "Patliputra Industrial Area, Phase II, Patna",
+    "timestamp": "2026-08-11T11:20:00Z",
+    "comment": "Broken computer monitors and electronic circuit boards dumped on sidewalk.",
+    "reporter_comment": "Broken computer monitors and electronic circuit boards dumped on sidewalk.",
+    "recommended_action": "Dispatch E-Waste Collection Van to Recycler Yard",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna E-Waste Recycling Wing",
+    "ai_confidence": 90.0
+  },
+  {
+    "id": "COMP-2026-010",
+    "image_url": "https://images.unsplash.com/photo-1503596476-1c12a8ba09a9?auto=format&fit=crop&w=800&q=80",
+    "category": "garbage_dump",
+    "volume": "medium",
+    "priority_score": 48.0,
+    "status": "resolved",
+    "gps": {
+      "lat": 25.602,
+      "lng": 85.168
+    },
+    "address": "Rajendra Nagar Overbridge Colony, Patna",
+    "timestamp": "2026-08-10T16:40:00Z",
+    "comment": "Household trash bags piled beneath bridge pillar 14.",
+    "reporter_comment": "Household trash bags piled beneath bridge pillar 14.",
+    "recommended_action": "Dispatch Standard Tipper Truck + 2 Workers",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Rajendra Nagar Ward 22 Unit",
+    "ai_confidence": 88.0
+  },
+  {
+    "id": "COMP-2026-011",
+    "image_url": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80",
+    "category": "overflowing_bin",
+    "volume": "medium",
+    "priority_score": 42.0,
+    "status": "resolved",
+    "gps": {
+      "lat": 25.578,
+      "lng": 85.105
+    },
+    "address": "Anisabad Chauraha, Bus Stop Corner, Patna",
+    "timestamp": "2026-08-09T14:15:00Z",
+    "comment": "Trash container full after Sunday market hours.",
+    "reporter_comment": "Trash container full after Sunday market hours.",
+    "recommended_action": "Routine Bin Clearance Service",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Anisabad Sanitation Division",
+    "ai_confidence": 94.0
+  },
+  {
+    "id": "COMP-2026-012",
+    "image_url": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
+    "category": "drain_blockage",
+    "volume": "large",
+    "priority_score": 81.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.5942,
+      "lng": 85.1614
+    },
+    "address": "Kankarbagh Main Market Lane, Patna",
+    "timestamp": "2026-08-13T09:40:00Z",
+    "comment": "Second complaint regarding the flooded drain at Kankarbagh Tempo Stand.",
+    "reporter_comment": "Second complaint regarding the flooded drain at Kankarbagh Tempo Stand.",
+    "recommended_action": "Attach case to primary COMP-2026-004 ticket",
+    "is_duplicate": true,
+    "duplicate_of": "COMP-2026-004",
+    "assigned_team": "Kankarbagh Drainage Division 3",
+    "ai_confidence": 95.0
+  },
+  {
+    "id": "COMP-2026-013",
+    "image_url": "https://images.unsplash.com/photo-1611284446314-60a55ac0d494?auto=format&fit=crop&w=800&q=80",
+    "category": "organic_waste",
+    "volume": "large",
+    "priority_score": 65.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.597,
+      "lng": 85.093
+    },
+    "address": "Ashiana Nagar Phase 1 Market, Patna",
+    "timestamp": "2026-08-13T07:10:00Z",
+    "comment": "Fruit seller discards piling up near residential apartments.",
+    "reporter_comment": "Fruit seller discards piling up near residential apartments.",
+    "recommended_action": "Dispatch Organic Collector Vehicle",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Ashiana Sanitation Crew",
+    "ai_confidence": 91.0
+  },
+  {
+    "id": "COMP-2026-014",
+    "image_url": "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80",
+    "category": "garbage_dump",
+    "volume": "very_large",
+    "priority_score": 91.0,
+    "status": "in_progress",
+    "gps": {
+      "lat": 25.614,
+      "lng": 85.148
+    },
+    "address": "Exhibition Road Flyover Underpass, Patna",
+    "timestamp": "2026-08-12T21:00:00Z",
+    "comment": "Commercial packaging waste accumulated under flyover blocking turn lane.",
+    "reporter_comment": "Commercial packaging waste accumulated under flyover blocking turn lane.",
+    "recommended_action": "Dispatch Heavy Truck + Night Cleanup Crew",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna Central Night Fleet",
+    "ai_confidence": 96.0
+  },
+  {
+    "id": "COMP-2026-015",
+    "image_url": "https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?auto=format&fit=crop&w=800&q=80",
+    "category": "plastic_waste",
+    "volume": "small",
+    "priority_score": 32.0,
+    "status": "resolved",
+    "gps": {
+      "lat": 25.619,
+      "lng": 85.181
+    },
+    "address": "Patna Sahib Chowk, Heritage Corridor, Patna",
+    "timestamp": "2026-08-08T11:00:00Z",
+    "comment": "Stray plastic litter near heritage tourist path.",
+    "reporter_comment": "Stray plastic litter near heritage tourist path.",
+    "recommended_action": "Heritage Route Sweeper Duty",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Patna Sahib Heritage Division",
+    "ai_confidence": 89.0
+  },
+  {
+    "id": "COMP-2026-016",
+    "image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
+    "category": "construction_debris",
+    "volume": "large",
+    "priority_score": 61.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.632,
+      "lng": 85.101
+    },
+    "address": "Digha Ghat Approach Road, Patna",
+    "timestamp": "2026-08-13T05:30:00Z",
+    "comment": "Demolition concrete blocks dumped along riverfront road.",
+    "reporter_comment": "Demolition concrete blocks dumped along riverfront road.",
+    "recommended_action": "Dispatch Loader Truck",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Digha Riverfront Patrol",
+    "ai_confidence": 92.0
+  },
+  {
+    "id": "COMP-2026-017",
+    "image_url": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80",
+    "category": "overflowing_bin",
+    "volume": "large",
+    "priority_score": 79.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.598,
+      "lng": 85.132
+    },
+    "address": "Mithapur Bus Stand Gate 2, Patna",
+    "timestamp": "2026-08-13T08:50:00Z",
+    "comment": "Bus terminal main bin overflowing due to heavy morning passenger footfall.",
+    "reporter_comment": "Bus terminal main bin overflowing due to heavy morning passenger footfall.",
+    "recommended_action": "Immediate Tipper Pickup + Double Capacity Bin Replacement",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "Mithapur Terminal Sanitation Squad",
+    "ai_confidence": 97.0
+  },
+  {
+    "id": "COMP-2026-018",
+    "image_url": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
+    "category": "drain_blockage",
+    "volume": "medium",
+    "priority_score": 52.0,
+    "status": "resolved",
+    "gps": {
+      "lat": 25.604,
+      "lng": 85.071
+    },
+    "address": "Saguna More Flyover Service Road, Patna",
+    "timestamp": "2026-08-07T15:20:00Z",
+    "comment": "Minor drain overflow near highway service lane.",
+    "reporter_comment": "Minor drain overflow near highway service lane.",
+    "recommended_action": "Clear Drain Grate Manually",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": "West Zone Highway Maintenance",
+    "ai_confidence": 87.0
+  },
+  {
+    "id": "COMP-2026-019",
+    "image_url": "http://localhost:8000/uploads/complaint_3243ede5957b.jpg",
+    "category": "plastic_waste",
+    "volume": "small",
+    "priority_score": 30.0,
+    "status": "submitted",
+    "gps": {
+      "lat": 25.6125,
+      "lng": 85.129
+    },
+    "address": "Bailey Road, Patna",
+    "timestamp": "2026-08-15T10:27:46.983001Z",
+    "comment": "Mobile app integration test complaint",
+    "reporter_comment": "Mobile app integration test complaint",
+    "recommended_action": "Route to recycling partner",
+    "is_duplicate": false,
+    "duplicate_of": null,
+    "assigned_team": null,
+    "ai_confidence": 86.3
+  }
+]
