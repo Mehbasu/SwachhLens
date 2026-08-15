@@ -5,15 +5,15 @@ export default function SummaryCard({ title, value, icon: Icon, trend, trendValu
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden rounded-xl border transition-all duration-200 p-5 ${
-        onClick ? 'cursor-pointer hover:border-slate-500 hover:scale-[1.01]' : ''
+      className={`relative overflow-hidden rounded-xl border transition-all duration-300 p-5 ${
+        onClick ? 'cursor-pointer hover:border-slate-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-900/20' : ''
       } ${
         active
-          ? 'bg-slate-800 border-teal-500/50 shadow-lg shadow-teal-500/5 ring-1 ring-teal-500/30'
-          : 'bg-slate-800/80 border-slate-700/70 shadow-md backdrop-blur-md'
+          ? 'bg-slate-800/90 border-teal-500/50 shadow-lg shadow-teal-500/10 ring-1 ring-teal-500/30'
+          : 'bg-slate-900/40 border-slate-700/50 shadow-md backdrop-blur-xl'
       }`}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between relative z-10">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">{title}</p>
           <h3 className="text-3xl font-extrabold text-white tracking-tight">{value}</h3>

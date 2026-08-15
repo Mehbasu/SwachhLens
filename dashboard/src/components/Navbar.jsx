@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Menu, Search, Bell, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { resetMockData } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { GooeySearchBar } from './ui/animated-search-bar';
 
-export default function Navbar({ onMenuToggle, searchValue, onSearchChange }) {
+export default function Navbar({ searchValue, onSearchChange }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const navigate = useNavigate();
@@ -22,26 +23,10 @@ export default function Navbar({ onMenuToggle, searchValue, onSearchChange }) {
   ];
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 md:px-6 flex items-center justify-between">
-      {/* Left side: Hamburger + Search */}
+    <header className="sticky top-0 z-30 h-16 bg-slate-950/40 backdrop-blur-2xl border-b border-white/5 px-4 md:px-6 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+      {/* Left side: Search */}
       <div className="flex items-center gap-3 flex-1 max-w-xl">
-        <button
-          onClick={onMenuToggle}
-          className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 md:hidden"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            value={searchValue || ''}
-            onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-            placeholder="Search complaint ID, location (e.g. Boring Road)..."
-            className="w-full pl-9 pr-4 py-1.5 rounded-xl bg-slate-950 border border-slate-700/80 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-colors"
-          />
-        </div>
+        <GooeySearchBar onGlobalSearch={onSearchChange} />
       </div>
 
       {/* Right side: Live badge, reset data button, notifications */}
@@ -75,8 +60,8 @@ export default function Navbar({ onMenuToggle, searchValue, onSearchChange }) {
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 animate-fade-in">
-              <div className="p-3 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
+            <div className="absolute right-0 mt-2 w-80 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-fade-in ring-1 ring-white/5">
+              <div className="p-3 bg-slate-900/50 border-b border-white/5 flex items-center justify-between">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">Control Alerts</span>
                 <span className="bg-teal-500/20 text-teal-400 text-[10px] px-1.5 py-0.5 rounded font-bold">3 New</span>
               </div>

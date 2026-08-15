@@ -23,6 +23,7 @@
       }
     },
     "android": {
+      "package": "com.technova.swachhlens",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f172a"

@@ -6,14 +6,17 @@ import DashboardHome from './pages/DashboardHome';
 import ComplaintsList from './pages/ComplaintsList';
 import ComplaintDetail from './pages/ComplaintDetail';
 import Analytics from './pages/Analytics';
+import GetStartedPage from './pages/GetStartedPage';
 
 // Simple Auth Protection Guard
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('swachhlens_auth_token');
-  // Allow demo access directly, or set default token if missing
+  
   if (!token) {
-    localStorage.setItem('swachhlens_auth_token', 'demo_patna_token');
+    // If no token exists, redirect unauthenticated users to the welcome page
+    return <Navigate to="/welcome" replace />;
   }
+  
   return children;
 }
 
@@ -21,6 +24,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/welcome" element={<GetStartedPage />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route

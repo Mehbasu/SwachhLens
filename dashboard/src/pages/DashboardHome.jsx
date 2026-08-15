@@ -62,7 +62,11 @@ export default function DashboardHome() {
   const urgentList = complaints.filter((c) => c.priority_score >= 75).slice(0, 4);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Background ambient glow */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[128px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-rose-500/10 rounded-full blur-[128px] pointer-events-none -z-10" />
+
       {/* Page Title & Quick Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -82,19 +86,34 @@ export default function DashboardHome() {
         <div className="flex items-center gap-2">
           <button
             onClick={loadData}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-colors"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700/50 backdrop-blur-md flex items-center gap-1.5 transition-all hover:shadow-lg hover:shadow-slate-900/50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh Grid</span>
           </button>
           <button
             onClick={() => navigate('/complaints')}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-xs shadow-lg shadow-teal-500/20 flex items-center gap-1.5 transition-all"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500/90 to-emerald-600/90 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-xs shadow-lg shadow-teal-500/20 flex items-center gap-1.5 transition-all hover:-translate-y-0.5 backdrop-blur-md border border-teal-400/30"
           >
             <span>View All Complaints</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      {/* Live Activity Ticker */}
+      <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-lg p-2.5 flex items-center gap-3 overflow-hidden shadow-inner ring-1 ring-white/5">
+        <span className="flex h-2.5 w-2.5 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
+        </span>
+        <span className="text-xs font-mono text-teal-400 font-bold tracking-wider uppercase shrink-0">Live System Feed</span>
+        <div className="w-px h-4 bg-slate-700"></div>
+        <p className="text-xs text-slate-300 truncate font-medium">
+          {complaints.length > 0 
+            ? `Update: AI Vision classified new priority ${complaints[0]?.priority_score || 85} issue at ${complaints[0]?.address || 'Sector 4'}.` 
+            : 'System online. Awaiting incoming citizen reports...'}
+        </p>
       </div>
 
       {/* Connection Error Banner */}
@@ -123,6 +142,8 @@ export default function DashboardHome() {
           accentColor="bg-slate-500"
           active={activeFilter === 'all'}
           onClick={() => setActiveFilter('all')}
+          trend="up"
+          trendValue="12%"
         />
         <SummaryCard
           title="Pending / Submitted"
@@ -132,6 +153,8 @@ export default function DashboardHome() {
           accentColor="bg-amber-500"
           active={activeFilter === 'pending'}
           onClick={() => setActiveFilter('pending')}
+          trend="down"
+          trendValue="5%"
         />
         <SummaryCard
           title="In Progress"
@@ -141,6 +164,8 @@ export default function DashboardHome() {
           accentColor="bg-blue-500"
           active={activeFilter === 'in_progress'}
           onClick={() => setActiveFilter('in_progress')}
+          trend="up"
+          trendValue="24%"
         />
         <SummaryCard
           title="Resolved"
@@ -150,6 +175,8 @@ export default function DashboardHome() {
           accentColor="bg-emerald-500"
           active={activeFilter === 'resolved'}
           onClick={() => setActiveFilter('resolved')}
+          trend="up"
+          trendValue="18%"
         />
         <SummaryCard
           title="Urgent / Escalated"
@@ -159,6 +186,8 @@ export default function DashboardHome() {
           accentColor="bg-rose-500"
           active={activeFilter === 'urgent'}
           onClick={() => setActiveFilter('urgent')}
+          trend="up"
+          trendValue="2%"
         />
       </div>
 
@@ -197,7 +226,7 @@ export default function DashboardHome() {
             </span>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3 space-y-3 max-h-[480px] overflow-y-auto">
+          <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-3 space-y-3 max-h-[480px] overflow-y-auto ring-1 ring-white/5">
             {urgentList.length === 0 ? (
               <div className="py-8 text-center text-slate-500 text-xs">
                 No urgent priority complaints at this moment.
@@ -210,8 +239,14 @@ export default function DashboardHome() {
                   <div
                     key={item.id}
                     onClick={() => navigate(`/complaints/${item.id}`)}
-                    className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/70 hover:border-teal-500 cursor-pointer transition-all duration-200 space-y-2 group"
+                    className="relative p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 hover:border-teal-400 hover:bg-slate-800 cursor-pointer transition-all duration-300 space-y-2 group hover:-translate-y-0.5 hover:shadow-lg hover:shadow-teal-900/20"
                   >
+                    {/* Subtle pulse indicator for urgent items */}
+                    <div className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500 border-2 border-slate-900"></span>
+                    </div>
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-bold text-teal-400 text-xs">{item.id}</span>
@@ -224,20 +259,20 @@ export default function DashboardHome() {
                       <img
                         src={item.image_url}
                         alt={cat.label}
-                        className="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0"
+                        className="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0 group-hover:border-teal-500/50 transition-colors"
                       />
                       <div className="min-w-0 flex-1">
                         <h4 className="font-bold text-white text-xs truncate group-hover:text-teal-300 transition-colors">
                           {cat.label}
                         </h4>
                         <p className="text-[11px] text-slate-400 truncate flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
+                          <MapPin className="w-3 h-3 text-slate-500 shrink-0 group-hover:text-teal-400/70 transition-colors" />
                           <span className="truncate">{item.address}</span>
                         </p>
                       </div>
                     </div>
 
-                    <div className="bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] text-amber-300 font-medium">
+                    <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800/80 text-[11px] text-amber-300 font-medium group-hover:border-amber-500/30 transition-colors">
                       ⚡ Action: {item.recommended_action}
                     </div>
                   </div>

@@ -1,9 +1,69 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator, Alert } from 'react-native';
+import * as Location from 'expo-location';
 
 export default function LocationPicker({ location, onLocationChange }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [customAddress, setCustomAddress] = useState(location?.address || 'Boring Road Crossing, Patna');
+  const [customAddress, setCustomAddress] = useState(location?.address || '');
+  const [isLocating, setIsLocating] = useState(false);
+
+  // Automatically fetch location on mount if not already set
+  useEffect(() => {
+    if (!location?.gps?.lat || location.address.includes('Boring Road')) {
+      fetchRealLocation();
+    } else {
+      setCustomAddress(location.address);
+    }
+  }, []);
+
+  const fetchRealLocation = async () => {
+    setIsLocating(true);
+    try {
+      // 1. Request Permission
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission to access location was denied');
+        setIsLocating(false);
+        return;
+      }
+
+      // 2. Get GPS Coordinates
+      let currentLoc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+      
+      const { latitude, longitude } = currentLoc.coords;
+
+      // 3. Reverse Geocode to get street address
+      let geocode = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude
+      });
+
+      let addressString = 'Unknown Location';
+      if (geocode.length > 0) {
+        const place = geocode[0];
+        // Build a readable address string (e.g. "Main St, Patna, Bihar")
+        addressString = [place.street, place.city, place.region]
+          .filter(Boolean)
+          .join(', ');
+      }
+
+      // 4. Update parent state
+      if (onLocationChange) {
+        onLocationChange({
+          gps: { lat: latitude, lng: longitude },
+          address: addressString
+        });
+      }
+      setCustomAddress(addressString);
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      Alert.alert('Location Error', 'Could not fetch your exact location. Please enter it manually.');
+    } finally {
+      setIsLocating(false);
+    }
+  };
 
   const handleSave = () => {
     setIsEditing(false);
@@ -23,12 +83,19 @@ export default function LocationPicker({ location, onLocationChange }) {
           <Text style={styles.title}>GPS Geotag Location</Text>
         </View>
         <View style={styles.gpsBadge}>
-          <View style={styles.liveDot} />
-          <Text style={styles.gpsBadgeText}>GPS Active</Text>
+          <View style={[styles.liveDot, isLocating && { backgroundColor: '#fbbf24' }]} />
+          <Text style={[styles.gpsBadgeText, isLocating && { color: '#fbbf24' }]}>
+            {isLocating ? 'Acquiring...' : 'GPS Active'}
+          </Text>
         </View>
       </View>
 
-      {isEditing ? (
+      {isLocating ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="small" color="#10b981" />
+          <Text style={styles.loadingText}>Fetching precise GPS coordinates...</Text>
+        </View>
+      ) : isEditing ? (
         <View style={styles.editBox}>
           <TextInput
             style={styles.input}
@@ -43,17 +110,26 @@ export default function LocationPicker({ location, onLocationChange }) {
         </View>
       ) : (
         <View style={styles.infoBox}>
-          <Text style={styles.addressText}>{location?.address || 'Boring Road Crossing, Patna, Bihar'}</Text>
+          <Text style={styles.addressText}>{location?.address || 'Locating...'}</Text>
           <Text style={styles.coordsText}>
-            Coordinates: {location?.gps?.lat?.toFixed(4) || '25.6093'}° N, {location?.gps?.lng?.toFixed(4) || '85.1235'}° E
+            Coordinates: {location?.gps?.lat?.toFixed(5) || '---'}° N, {location?.gps?.lng?.toFixed(5) || '---'}° E
           </Text>
 
-          <TouchableOpacity
-            style={styles.adjustBtn}
-            onPress={() => setIsEditing(true)}
-          >
-            <Text style={styles.adjustBtnText}>✏️ Adjust Location / Pin</Text>
-          </TouchableOpacity>
+          <View style={styles.btnRow}>
+            <TouchableOpacity
+              style={styles.adjustBtn}
+              onPress={() => setIsEditing(true)}
+            >
+              <Text style={styles.adjustBtnText}>✏️ Edit Address</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.refreshBtn}
+              onPress={fetchRealLocation}
+            >
+              <Text style={styles.refreshBtnText}>🔄 Refresh GPS</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
@@ -110,6 +186,22 @@ const styles = StyleSheet.create({
     color: '#10b981',
     fontWeight: '700',
   },
+  loadingBox: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  loadingText: {
+    color: '#94a3b8',
+    fontSize: 12.5,
+    fontWeight: '500',
+  },
   infoBox: {
     backgroundColor: '#0f172a',
     borderRadius: 12,
@@ -127,10 +219,13 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: '#64748b',
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: 12,
+  },
+  btnRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
   adjustBtn: {
-    alignSelf: 'flex-start',
     backgroundColor: '#1e293b',
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -141,6 +236,19 @@ const styles = StyleSheet.create({
   adjustBtnText: {
     fontSize: 11.5,
     color: '#38bdf8',
+    fontWeight: '600',
+  },
+  refreshBtn: {
+    backgroundColor: '#1e293b',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#475569',
+  },
+  refreshBtnText: {
+    fontSize: 11.5,
+    color: '#10b981',
     fontWeight: '600',
   },
   editBox: {
