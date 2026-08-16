@@ -107,14 +107,14 @@ export default function ConfirmationScreen({ route, navigation }) {
         <View style={currentStyles.btnGroup}>
           <PrimaryButton
             title="📋 View My Reports"
-            onPress={() => navigation.navigate('MyReportsTab')}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'MyReportsTab' })}
             style={currentStyles.btn}
           />
 
           <PrimaryButton
             title="🏠 Return to Home"
             variant="secondary"
-            onPress={() => navigation.navigate('HomeTab')}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
             style={currentStyles.btn}
           />
         </View>
