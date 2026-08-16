@@ -10,10 +10,14 @@ import {
   RefreshControl
 } from 'react-native';
 import { useReports } from '../context/ReportsContext';
+import { useTheme } from '../contexts/ThemeContext';
 import ReportCard from '../components/ReportCard';
 
 export default function MyReportsScreen({ navigation }) {
   const { reports, loading, refreshReports } = useReports();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
   const [filterStatus, setFilterStatus] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -29,30 +33,30 @@ export default function MyReportsScreen({ navigation }) {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
-      <View style={styles.container}>
+    <SafeAreaView style={currentStyles.safeArea}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#0f172a" : "#f1f5f9"} />
+      <View style={currentStyles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>My Reports 📋</Text>
-          <Text style={styles.subtitle}>
+        <View style={currentStyles.header}>
+          <Text style={currentStyles.title}>My Reports 📋</Text>
+          <Text style={currentStyles.subtitle}>
             Track real-time municipal response & cleanup verification
           </Text>
         </View>
 
         {/* Filter Chips */}
-        <View style={styles.filterRow}>
+        <View style={currentStyles.filterRow}>
           <TouchableOpacity
             onPress={() => setFilterStatus('all')}
             style={[
-              styles.filterChip,
-              filterStatus === 'all' && styles.filterChipActive
+              currentStyles.filterChip,
+              filterStatus === 'all' && currentStyles.filterChipActive
             ]}
           >
             <Text
               style={[
-                styles.filterText,
-                filterStatus === 'all' && styles.filterTextActive
+                currentStyles.filterText,
+                filterStatus === 'all' && currentStyles.filterTextActive
               ]}
             >
               All ({reports.length})
@@ -62,13 +66,13 @@ export default function MyReportsScreen({ navigation }) {
           <TouchableOpacity
             onPress={() => setFilterStatus('submitted')}
             style={[
-              styles.filterChip,
-              filterStatus === 'submitted' && styles.filterChipActiveBlue
+              currentStyles.filterChip,
+              filterStatus === 'submitted' && currentStyles.filterChipActiveBlue
             ]}
           >
             <Text
               style={[
-                styles.filterText,
+                currentStyles.filterText,
                 filterStatus === 'submitted' && { color: '#60a5fa' }
               ]}
             >
@@ -79,13 +83,13 @@ export default function MyReportsScreen({ navigation }) {
           <TouchableOpacity
             onPress={() => setFilterStatus('in_progress')}
             style={[
-              styles.filterChip,
-              filterStatus === 'in_progress' && styles.filterChipActiveOrange
+              currentStyles.filterChip,
+              filterStatus === 'in_progress' && currentStyles.filterChipActiveOrange
             ]}
           >
             <Text
               style={[
-                styles.filterText,
+                currentStyles.filterText,
                 filterStatus === 'in_progress' && { color: '#fb923c' }
               ]}
             >
@@ -96,13 +100,13 @@ export default function MyReportsScreen({ navigation }) {
           <TouchableOpacity
             onPress={() => setFilterStatus('resolved')}
             style={[
-              styles.filterChip,
-              filterStatus === 'resolved' && styles.filterChipActiveGreen
+              currentStyles.filterChip,
+              filterStatus === 'resolved' && currentStyles.filterChipActiveGreen
             ]}
           >
             <Text
               style={[
-                styles.filterText,
+                currentStyles.filterText,
                 filterStatus === 'resolved' && { color: '#34d399' }
               ]}
             >
@@ -114,7 +118,7 @@ export default function MyReportsScreen({ navigation }) {
         {/* Reports List */}
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={currentStyles.listContent}
           refreshControl={
             <RefreshControl
               refreshing={refreshing || loading}
@@ -125,10 +129,10 @@ export default function MyReportsScreen({ navigation }) {
           }
         >
           {filteredReports.length === 0 ? (
-            <View style={styles.emptyCard}>
-              <Text style={styles.emptyIcon}>🔍</Text>
-              <Text style={styles.emptyTitle}>No reports match filter</Text>
-              <Text style={styles.emptySub}>
+            <View style={currentStyles.emptyCard}>
+              <Text style={currentStyles.emptyIcon}>🔍</Text>
+              <Text style={currentStyles.emptyTitle}>No reports match filter</Text>
+              <Text style={currentStyles.emptySub}>
                 Try selecting 'All' or reporting a new issue.
               </Text>
             </View>
@@ -147,10 +151,10 @@ export default function MyReportsScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f1f5f9',
   },
   container: {
     flex: 1,
@@ -163,11 +167,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
   },
   subtitle: {
     fontSize: 12.5,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     marginTop: 2,
   },
   filterRow: {
@@ -179,13 +183,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   filterChipActive: {
-    backgroundColor: '#334155',
-    borderColor: '#64748b',
+    backgroundColor: isDark ? '#334155' : '#cbd5e1',
+    borderColor: isDark ? '#64748b' : '#94a3b8',
   },
   filterChipActiveBlue: {
     backgroundColor: '#1e3a8a30',
@@ -202,23 +206,23 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
   },
   filterTextActive: {
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     fontWeight: '700',
   },
   listContent: {
     paddingBottom: 32,
   },
   emptyCard: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 16,
     padding: 32,
     alignItems: 'center',
     marginTop: 24,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   emptyIcon: {
     fontSize: 36,
@@ -227,11 +231,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginBottom: 4,
   },
   emptySub: {
     fontSize: 12.5,
-    color: '#64748b',
+    color: isDark ? '#64748b' : '#94a3b8',
   }
 });

@@ -16,9 +16,13 @@ import LocationPicker from '../components/LocationPicker';
 import PrimaryButton from '../components/PrimaryButton';
 import { submitComplaint } from '../services/api';
 import { useReports } from '../context/ReportsContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function ReportScreen({ navigation }) {
   const { addReport } = useReports();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [capturedTimestamp, setCapturedTimestamp] = useState(null);
@@ -114,13 +118,13 @@ export default function ReportScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={currentStyles.safeArea}>
       {isAnalyzing && (
-        <View style={styles.overlay}>
-          <View style={styles.analyzingCard}>
+        <View style={currentStyles.overlay}>
+          <View style={currentStyles.analyzingCard}>
             <ActivityIndicator size="large" color="#10b981" />
-            <Text style={styles.analyzingTitle}>SwachhLens AI Analyzing...</Text>
-            <Text style={styles.analyzingSub}>
+            <Text style={currentStyles.analyzingTitle}>SwachhLens AI Analyzing...</Text>
+            <Text style={currentStyles.analyzingSub}>
               Extracting waste classification, volume estimation & spatial geotags.
             </Text>
           </View>
@@ -128,47 +132,47 @@ export default function ReportScreen({ navigation }) {
       )}
 
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={currentStyles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.screenTitle}>Report a Waste Issue</Text>
-        <Text style={styles.screenSub}>
+        <Text style={currentStyles.screenTitle}>Report a Waste Issue</Text>
+        <Text style={currentStyles.screenSub}>
           Take or upload a photo/video to immediately alert municipal sanitation crews.
         </Text>
 
         {/* Photo/Video Capture Section */}
-        <View style={styles.photoContainer}>
+        <View style={currentStyles.photoContainer}>
           {selectedImage ? (
-            <View style={styles.previewWrapper}>
-              <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+            <View style={currentStyles.previewWrapper}>
+              <Image source={{ uri: selectedImage }} style={currentStyles.previewImage} />
               <TouchableOpacity
-                style={styles.retakeBtn}
+                style={currentStyles.retakeBtn}
                 onPress={() => {
                   setSelectedImage(null);
                   setCapturedTimestamp(null);
                 }}
               >
-                <Text style={styles.retakeBtnText}>🔄 Change Media</Text>
+                <Text style={currentStyles.retakeBtnText}>🔄 Change Media</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.captureBox}>
-              <Text style={styles.cameraIcon}>📸</Text>
-              <Text style={styles.capturePrompt}>No media selected yet</Text>
+            <View style={currentStyles.captureBox}>
+              <Text style={currentStyles.cameraIcon}>📸</Text>
+              <Text style={currentStyles.capturePrompt}>No media selected yet</Text>
               
-              <View style={styles.photoBtnRow}>
+              <View style={currentStyles.photoBtnRow}>
                 <TouchableOpacity
-                  style={styles.photoBtnPrimary}
+                  style={currentStyles.photoBtnPrimary}
                   onPress={handleLaunchCamera}
                 >
-                  <Text style={styles.photoBtnText}>📷 Take Photo/Video</Text>
+                  <Text style={currentStyles.photoBtnText}>📷 Take Photo/Video</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.photoBtnSecondary}
+                  style={currentStyles.photoBtnSecondary}
                   onPress={handleLaunchGallery}
                 >
-                  <Text style={styles.photoBtnSecondaryText}>🖼️ Choose Gallery</Text>
+                  <Text style={currentStyles.photoBtnSecondaryText}>🖼️ Choose Gallery</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -182,13 +186,13 @@ export default function ReportScreen({ navigation }) {
         />
 
         {/* Optional Comment Input */}
-        <Text style={styles.fieldLabel}>Add a Note / Remark (Optional)</Text>
+        <Text style={currentStyles.fieldLabel}>Add a Note / Remark (Optional)</Text>
         <TextInput
-          style={styles.textArea}
+          style={currentStyles.textArea}
           value={comment}
           onChangeText={setComment}
           placeholder="e.g. 'Blocking pedestrian path near traffic light...'"
-          placeholderTextColor="#64748b"
+          placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
           multiline
           numberOfLines={3}
         />
@@ -197,17 +201,17 @@ export default function ReportScreen({ navigation }) {
         <PrimaryButton
           title="✨ Submit Report & Run AI Verification"
           onPress={handleSubmit}
-          style={styles.submitBtn}
+          style={currentStyles.submitBtn}
         />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f1f5f9',
   },
   container: {
     padding: 16,
@@ -216,23 +220,23 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginBottom: 4,
     marginTop: 8,
   },
   screenSub: {
     fontSize: 13,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     marginBottom: 16,
   },
   photoContainer: {
     marginBottom: 16,
   },
   captureBox: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 18,
     borderWidth: 2,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#cbd5e1',
     borderStyle: 'dashed',
     padding: 24,
     alignItems: 'center',
@@ -243,7 +247,7 @@ const styles = StyleSheet.create({
   },
   capturePrompt: {
     fontSize: 13.5,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     fontWeight: '500',
     marginBottom: 16,
   },
@@ -263,15 +267,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   photoBtnSecondary: {
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#cbd5e1',
   },
   photoBtnSecondaryText: {
-    color: '#cbd5e1',
+    color: isDark ? '#cbd5e1' : '#475569',
     fontWeight: '600',
     fontSize: 13,
   },
@@ -279,7 +283,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
     position: 'relative',
   },
   previewImage: {
@@ -291,33 +295,33 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 12,
     right: 12,
-    backgroundColor: '#0f172ae0',
+    backgroundColor: isDark ? '#0f172ae0' : '#ffffffd9',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#475569',
+    borderColor: isDark ? '#475569' : '#cbd5e1',
   },
   retakeBtnText: {
-    color: '#38bdf8',
+    color: isDark ? '#38bdf8' : '#0284c7',
     fontSize: 12,
     fontWeight: '700',
   },
   fieldLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginBottom: 8,
     marginTop: 6,
   },
   textArea: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 14,
     padding: 12,
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     fontSize: 13.5,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#cbd5e1',
     minHeight: 70,
     textAlignVertical: 'top',
     marginBottom: 20,
@@ -327,14 +331,14 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000000bb',
+    backgroundColor: isDark ? '#000000bb' : '#ffffffbb',
     zIndex: 99,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
   analyzingCard: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 20,
     padding: 28,
     alignItems: 'center',
@@ -344,13 +348,13 @@ const styles = StyleSheet.create({
   analyzingTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginTop: 16,
     marginBottom: 6,
   },
   analyzingSub: {
     fontSize: 12.5,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     textAlign: 'center',
     lineHeight: 18,
   }

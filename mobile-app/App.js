@@ -21,23 +21,23 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 // Custom Bottom Tab Bar Icons helper
-function TabIcon({ emoji, label, focused, isCenter = false }) {
+function TabIcon({ emoji, label, focused, isCenter = false, currentStyles }) {
   if (isCenter) {
     return (
-      <View style={styles.centerButtonWrapper}>
-        <View style={styles.centerButton}>
-          <Text style={styles.centerEmoji}>📷</Text>
+      <View style={currentStyles.centerButtonWrapper}>
+        <View style={currentStyles.centerButton}>
+          <Text style={currentStyles.centerEmoji}>📷</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.tabIconContainer}>
-      <Text style={[styles.tabEmoji, focused && styles.tabEmojiFocused]}>
+    <View style={currentStyles.tabIconContainer}>
+      <Text style={[currentStyles.tabEmoji, focused && currentStyles.tabEmojiFocused]}>
         {emoji}
       </Text>
-      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>
+      <Text style={[currentStyles.tabLabel, focused && currentStyles.tabLabelFocused]}>
         {label}
       </Text>
     </View>
@@ -46,12 +46,16 @@ function TabIcon({ emoji, label, focused, isCenter = false }) {
 
 // Bottom Tab Navigator Component
 function BottomTabNavigator() {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: styles.tabBarStyle,
+        tabBarStyle: currentStyles.tabBarStyle,
       }}
     >
       <Tab.Screen
@@ -59,7 +63,7 @@ function BottomTabNavigator() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🏠" label="Home" focused={focused} />
+            <TabIcon emoji="🏠" label="Home" focused={focused} currentStyles={currentStyles} />
           ),
         }}
       />
@@ -69,7 +73,7 @@ function BottomTabNavigator() {
         component={MyReportsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="📋" label="My Reports" focused={focused} />
+            <TabIcon emoji="📋" label="My Reports" focused={focused} currentStyles={currentStyles} />
           ),
         }}
       />
@@ -80,7 +84,7 @@ function BottomTabNavigator() {
         component={ReportScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon isCenter focused={focused} />
+            <TabIcon isCenter focused={focused} currentStyles={currentStyles} />
           ),
         }}
       />
@@ -90,7 +94,7 @@ function BottomTabNavigator() {
         component={NotificationsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🔔" label="Alerts" focused={focused} />
+            <TabIcon emoji="🔔" label="Alerts" focused={focused} currentStyles={currentStyles} />
           ),
         }}
       />
@@ -100,7 +104,7 @@ function BottomTabNavigator() {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="👤" label="Profile" focused={focused} />
+            <TabIcon emoji="👤" label="Profile" focused={focused} currentStyles={currentStyles} />
           ),
         }}
       />
@@ -142,10 +146,10 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: '#1e293b',
-    borderTopColor: '#334155',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
+    borderTopColor: isDark ? '#334155' : '#e2e8f0',
     borderTopWidth: 1,
     height: 68,
     paddingBottom: 8,
@@ -157,8 +161,8 @@ const styles = StyleSheet.create({
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   tabIconContainer: {
     alignItems: 'center',
@@ -174,7 +178,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 10,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     fontWeight: '600',
     marginTop: 2,
   },
@@ -200,7 +204,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
     borderWidth: 4,
-    borderColor: '#0f172a',
+    borderColor: isDark ? '#0f172a' : '#f1f5f9',
   },
   centerEmoji: {
     fontSize: 26,

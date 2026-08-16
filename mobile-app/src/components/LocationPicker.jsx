@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator, Alert } from 'react-native';
 import * as Location from 'expo-location';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function LocationPicker({ location, onLocationChange }) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
   const [isEditing, setIsEditing] = useState(false);
   const [customAddress, setCustomAddress] = useState(location?.address || '');
   const [isLocating, setIsLocating] = useState(false);
@@ -76,58 +80,58 @@ export default function LocationPicker({ location, onLocationChange }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.icon}>📍</Text>
-          <Text style={styles.title}>GPS Geotag Location</Text>
+    <View style={currentStyles.container}>
+      <View style={currentStyles.header}>
+        <View style={currentStyles.titleRow}>
+          <Text style={currentStyles.icon}>📍</Text>
+          <Text style={currentStyles.title}>GPS Geotag Location</Text>
         </View>
-        <View style={styles.gpsBadge}>
-          <View style={[styles.liveDot, isLocating && { backgroundColor: '#fbbf24' }]} />
-          <Text style={[styles.gpsBadgeText, isLocating && { color: '#fbbf24' }]}>
+        <View style={currentStyles.gpsBadge}>
+          <View style={[currentStyles.liveDot, isLocating && { backgroundColor: '#fbbf24' }]} />
+          <Text style={[currentStyles.gpsBadgeText, isLocating && { color: '#fbbf24' }]}>
             {isLocating ? 'Acquiring...' : 'GPS Active'}
           </Text>
         </View>
       </View>
 
       {isLocating ? (
-        <View style={styles.loadingBox}>
+        <View style={currentStyles.loadingBox}>
           <ActivityIndicator size="small" color="#10b981" />
-          <Text style={styles.loadingText}>Fetching precise GPS coordinates...</Text>
+          <Text style={currentStyles.loadingText}>Fetching precise GPS coordinates...</Text>
         </View>
       ) : isEditing ? (
-        <View style={styles.editBox}>
+        <View style={currentStyles.editBox}>
           <TextInput
-            style={styles.input}
+            style={currentStyles.input}
             value={customAddress}
             onChangeText={setCustomAddress}
             placeholder="Enter custom location/address..."
-            placeholderTextColor="#64748b"
+            placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
           />
-          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-            <Text style={styles.saveBtnText}>Done</Text>
+          <TouchableOpacity style={currentStyles.saveBtn} onPress={handleSave}>
+            <Text style={currentStyles.saveBtnText}>Done</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.infoBox}>
-          <Text style={styles.addressText}>{location?.address || 'Locating...'}</Text>
-          <Text style={styles.coordsText}>
+        <View style={currentStyles.infoBox}>
+          <Text style={currentStyles.addressText}>{location?.address || 'Locating...'}</Text>
+          <Text style={currentStyles.coordsText}>
             Coordinates: {location?.gps?.lat?.toFixed(5) || '---'}° N, {location?.gps?.lng?.toFixed(5) || '---'}° E
           </Text>
 
-          <View style={styles.btnRow}>
+          <View style={currentStyles.btnRow}>
             <TouchableOpacity
-              style={styles.adjustBtn}
+              style={currentStyles.adjustBtn}
               onPress={() => setIsEditing(true)}
             >
-              <Text style={styles.adjustBtnText}>✏️ Edit Address</Text>
+              <Text style={currentStyles.adjustBtnText}>✏️ Edit Address</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
-              style={styles.refreshBtn}
+              style={currentStyles.refreshBtn}
               onPress={fetchRealLocation}
             >
-              <Text style={styles.refreshBtnText}>🔄 Refresh GPS</Text>
+              <Text style={currentStyles.refreshBtnText}>🔄 Refresh GPS</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -136,14 +140,14 @@ export default function LocationPicker({ location, onLocationChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   container: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   header: {
     flexDirection: 'row',
@@ -162,7 +166,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
   },
   gpsBadge: {
     flexDirection: 'row',
@@ -187,37 +191,37 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   loadingBox: {
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
   },
   loadingText: {
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     fontSize: 12.5,
     fontWeight: '500',
   },
   infoBox: {
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   addressText: {
     fontSize: 13.5,
-    color: '#f1f5f9',
+    color: isDark ? '#f1f5f9' : '#0f172a',
     fontWeight: '600',
     marginBottom: 4,
   },
   coordsText: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: isDark ? '#64748b' : '#94a3b8',
     fontWeight: '500',
     marginBottom: 12,
   },
@@ -226,12 +230,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   adjustBtn: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#475569',
+    borderColor: isDark ? '#475569' : '#cbd5e1',
   },
   adjustBtnText: {
     fontSize: 11.5,
@@ -239,12 +243,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   refreshBtn: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#475569',
+    borderColor: isDark ? '#475569' : '#cbd5e1',
   },
   refreshBtnText: {
     fontSize: 11.5,
@@ -257,11 +261,11 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#ffffff',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     fontSize: 13,
     borderWidth: 1,
     borderColor: '#38bdf8',

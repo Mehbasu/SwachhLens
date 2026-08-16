@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function PrimaryButton({
   title,
@@ -10,19 +11,23 @@ export default function PrimaryButton({
   icon: IconComponent,
   style
 }) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
   const isSecondary = variant === 'secondary';
   const isOutline = variant === 'outline';
 
   const getBgColor = () => {
-    if (disabled) return '#334155';
-    if (isSecondary) return '#1e293b';
+    if (disabled) return isDark ? '#334155' : '#cbd5e1';
+    if (isSecondary) return isDark ? '#1e293b' : '#f1f5f9';
     if (isOutline) return 'transparent';
     return '#10b981'; // Civic Green primary
   };
 
   const getTextColor = () => {
-    if (disabled) return '#94a3b8';
+    if (disabled) return isDark ? '#94a3b8' : '#64748b';
     if (isOutline) return '#10b981';
+    if (isSecondary) return isDark ? '#f8fafc' : '#0f172a';
     return '#ffffff';
   };
 
@@ -32,11 +37,11 @@ export default function PrimaryButton({
       onPress={onPress}
       disabled={disabled || loading}
       style={[
-        styles.button,
+        currentStyles.button,
         {
           backgroundColor: getBgColor(),
-          borderColor: isOutline ? '#10b981' : 'transparent',
-          borderWidth: isOutline ? 1.5 : 0,
+          borderColor: isOutline ? '#10b981' : (isSecondary ? (isDark ? '#334155' : '#e2e8f0') : 'transparent'),
+          borderWidth: isOutline || isSecondary ? 1.5 : 0,
         },
         style
       ]}
@@ -44,20 +49,20 @@ export default function PrimaryButton({
       {loading ? (
         <ActivityIndicator color={getTextColor()} size="small" />
       ) : (
-        <View style={styles.content}>
+        <View style={currentStyles.content}>
           {IconComponent && (
-            <View style={styles.iconWrapper}>
+            <View style={currentStyles.iconWrapper}>
               <IconComponent size={20} color={getTextColor()} />
             </View>
           )}
-          <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
+          <Text style={[currentStyles.text, { color: getTextColor() }]}>{title}</Text>
         </View>
       )}
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   button: {
     height: 52,
     borderRadius: 14,

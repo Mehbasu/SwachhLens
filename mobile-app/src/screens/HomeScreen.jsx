@@ -9,88 +9,92 @@ import {
   StatusBar
 } from 'react-native';
 import { useReports } from '../context/ReportsContext';
+import { useTheme } from '../contexts/ThemeContext';
 import ReportCard from '../components/ReportCard';
 import PrimaryButton from '../components/PrimaryButton';
 
 export default function HomeScreen({ navigation }) {
   const { getStats, getRecentReports } = useReports();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
   const stats = getStats();
   const recentReports = getRecentReports(3);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
+    <SafeAreaView style={currentStyles.safeArea}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#0f172a" : "#f1f5f9"} />
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={currentStyles.container}
         showsVerticalScrollIndicator={false}
       >
         {/* Civic Header */}
-        <View style={styles.header}>
+        <View style={currentStyles.header}>
           <View>
-            <Text style={styles.cityName}>PATNA MUNICIPAL CORPORATION</Text>
-            <Text style={styles.title}>SwachhLens 🌿</Text>
+            <Text style={currentStyles.cityName}>PATNA MUNICIPAL CORPORATION</Text>
+            <Text style={currentStyles.title}>SwachhLens 🌿</Text>
           </View>
-          <View style={styles.ecoBadge}>
-            <Text style={styles.ecoIcon}>⭐</Text>
-            <Text style={styles.ecoPts}>{stats.ecoPoints} Pts</Text>
+          <View style={currentStyles.ecoBadge}>
+            <Text style={currentStyles.ecoIcon}>⭐</Text>
+            <Text style={currentStyles.ecoPts}>{stats.ecoPoints} Pts</Text>
           </View>
         </View>
 
         {/* Welcome Hero Card */}
-        <View style={styles.heroCard}>
-          <Text style={styles.heroTitle}>Keep Your City Clean & Green</Text>
-          <Text style={styles.heroSub}>
+        <View style={currentStyles.heroCard}>
+          <Text style={currentStyles.heroTitle}>Keep Your City Clean & Green</Text>
+          <Text style={currentStyles.heroSub}>
             Spot garbage overflow or drain blockage? Snap a quick photo with SwachhLens AI geotagging.
           </Text>
 
           <PrimaryButton
             title="📷  Report an Issue Now"
             onPress={() => navigation.navigate('ReportTab')}
-            style={styles.heroCta}
+            style={currentStyles.heroCta}
           />
         </View>
 
         {/* Quick Stats Grid */}
-        <Text style={styles.sectionTitle}>Your Impact Summary</Text>
-        <View style={styles.statsGrid}>
-          <View style={[styles.statBox, { borderColor: '#3b82f640' }]}>
-            <Text style={[styles.statNumber, { color: '#60a5fa' }]}>
+        <Text style={currentStyles.sectionTitle}>Your Impact Summary</Text>
+        <View style={currentStyles.statsGrid}>
+          <View style={[currentStyles.statBox, { borderColor: '#3b82f640' }]}>
+            <Text style={[currentStyles.statNumber, { color: '#60a5fa' }]}>
               {stats.submitted}
             </Text>
 
-            <Text style={styles.statLabel}>Submitted</Text>
+            <Text style={currentStyles.statLabel}>Submitted</Text>
           </View>
 
-          <View style={[styles.statBox, { borderColor: '#f9731640' }]}>
-            <Text style={[styles.statNumber, { color: '#fb923c' }]}>
+          <View style={[currentStyles.statBox, { borderColor: '#f9731640' }]}>
+            <Text style={[currentStyles.statNumber, { color: '#fb923c' }]}>
               {stats.inProgress}
             </Text>
 
-            <Text style={styles.statLabel}>In Progress</Text>
+            <Text style={currentStyles.statLabel}>In Progress</Text>
           </View>
 
-          <View style={[styles.statBox, { borderColor: '#10b98140' }]}>
-            <Text style={[styles.statNumber, { color: '#34d399' }]}>
+          <View style={[currentStyles.statBox, { borderColor: '#10b98140' }]}>
+            <Text style={[currentStyles.statNumber, { color: '#34d399' }]}>
               {stats.resolved}
             </Text>
 
-            <Text style={styles.statLabel}>Resolved</Text>
+            <Text style={currentStyles.statLabel}>Resolved</Text>
           </View>
         </View>
 
         {/* Quick Actions / Categories */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Reports</Text>
+        <View style={currentStyles.sectionHeader}>
+          <Text style={currentStyles.sectionTitle}>Recent Reports</Text>
           <TouchableOpacity onPress={() => navigation.navigate('MyReportsTab')}>
-            <Text style={styles.seeAllText}>See All ({stats.total}) →</Text>
+            <Text style={currentStyles.seeAllText}>See All ({stats.total}) →</Text>
           </TouchableOpacity>
         </View>
 
         {recentReports.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyIcon}>🗑️</Text>
-            <Text style={styles.emptyText}>No issues reported yet.</Text>
-            <Text style={styles.emptySub}>
+          <View style={currentStyles.emptyCard}>
+            <Text style={currentStyles.emptyIcon}>🗑️</Text>
+            <Text style={currentStyles.emptyText}>No issues reported yet.</Text>
+            <Text style={currentStyles.emptySub}>
               Be the first citizen to report waste in your neighborhood!
             </Text>
           </View>
@@ -108,10 +112,10 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f1f5f9',
   },
   container: {
     padding: 16,
@@ -133,7 +137,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
   },
   ecoBadge: {
     flexDirection: 'row',
@@ -155,22 +159,22 @@ const styles = StyleSheet.create({
     color: '#34d399',
   },
   heroCard: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 20,
     padding: 20,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   heroTitle: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginBottom: 6,
   },
   heroSub: {
     fontSize: 13.5,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     lineHeight: 19,
     marginBottom: 16,
   },
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginBottom: 12,
   },
   seeAllText: {
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 16,
     padding: 14,
     marginHorizontal: 4,
@@ -214,19 +218,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
     marginBottom: 2,
+    color: isDark ? '#f8fafc' : '#0f172a',
   },
   statLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
   },
   emptyCard: {
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   emptyIcon: {
     fontSize: 32,
@@ -235,12 +240,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#f8fafc',
+    color: isDark ? '#f8fafc' : '#0f172a',
     marginBottom: 4,
   },
   emptySub: {
     fontSize: 12.5,
-    color: '#64748b',
+    color: isDark ? '#64748b' : '#94a3b8',
     textAlign: 'center',
   }
 });

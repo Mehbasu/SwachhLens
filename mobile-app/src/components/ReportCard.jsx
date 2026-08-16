@@ -1,9 +1,13 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import StatusBadge from './StatusBadge';
 import { categoriesConfig, volumeConfig } from '../data/mockData';
 
 export default function ReportCard({ report, onPress }) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const currentStyles = styles(isDark);
   const categoryInfo = categoriesConfig[report.category] || {
     label: report.category,
     color: '#94a3b8'
@@ -30,39 +34,39 @@ export default function ReportCard({ report, onPress }) {
     <TouchableOpacity
       activeOpacity={0.75}
       onPress={onPress}
-      style={styles.card}
+      style={currentStyles.card}
     >
       <Image
         source={{ uri: report.image_url }}
-        style={styles.thumbnail}
+        style={currentStyles.thumbnail}
         resizeMode="cover"
       />
       
-      <View style={styles.details}>
-        <View style={styles.headerRow}>
+      <View style={currentStyles.details}>
+        <View style={currentStyles.headerRow}>
           <Text
             numberOfLines={1}
-            style={[styles.categoryLabel, { color: categoryInfo.color }]}
+            style={[currentStyles.categoryLabel, { color: categoryInfo.color }]}
           >
             {categoryInfo.label}
           </Text>
           <StatusBadge status={report.status} size="small" />
         </View>
 
-        <Text numberOfLines={1} style={styles.address}>
+        <Text numberOfLines={1} style={currentStyles.address}>
           📍 {report.address}
         </Text>
 
         {report.comment ? (
-          <Text numberOfLines={1} style={styles.comment}>
+          <Text numberOfLines={1} style={currentStyles.comment}>
             "{report.comment}"
           </Text>
         ) : null}
 
-        <View style={styles.footerRow}>
-          <Text style={styles.timestamp}>{formatDate(report.timestamp)}</Text>
-          <View style={styles.volumeChip}>
-            <Text style={styles.volumeText}>{volumeInfo.label.split(' ')[0]}</Text>
+        <View style={currentStyles.footerRow}>
+          <Text style={currentStyles.timestamp}>{formatDate(report.timestamp)}</Text>
+          <View style={currentStyles.volumeChip}>
+            <Text style={currentStyles.volumeText}>{volumeInfo.label.split(' ')[0]}</Text>
           </View>
         </View>
       </View>
@@ -70,15 +74,15 @@ export default function ReportCard({ report, onPress }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#1e293b',
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
     borderRadius: 16,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -89,7 +93,7 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 12,
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
   },
   details: {
     flex: 1,
@@ -110,13 +114,13 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: 12,
-    color: '#cbd5e1',
+    color: isDark ? '#cbd5e1' : '#475569',
     fontWeight: '500',
     marginBottom: 2,
   },
   comment: {
     fontSize: 11.5,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     fontStyle: 'italic',
     marginBottom: 4,
   },
@@ -128,20 +132,20 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 11,
-    color: '#64748b',
+    color: isDark ? '#64748b' : '#94a3b8',
     fontWeight: '500',
   },
   volumeChip: {
-    backgroundColor: '#0f172a',
+    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: isDark ? '#334155' : '#e2e8f0',
   },
   volumeText: {
     fontSize: 10,
-    color: '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     fontWeight: '600',
   }
 });
