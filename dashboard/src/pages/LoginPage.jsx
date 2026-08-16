@@ -7,15 +7,50 @@ export default function LoginPage() {
   const location = useLocation();
   const [isRegister, setIsRegister] = useState(location.state?.register || false);
   const [email, setEmail] = useState('officer@swachhlens.gov.in');
-  const [password, setPassword] = useState('••••••••••••');
-  const [confirmPassword, setConfirmPassword] = useState('••••••••••••');
+  const [password, setPassword] = useState('password123');
+  const [confirmPassword, setConfirmPassword] = useState('password123');
   const [role, setRole] = useState('inspector'); // 'inspector' | 'commissioner'
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem('swachhlens_auth_token', 'mock_jwt_token_patna_2026');
-    navigate('/');
+    setError(null);
+    setIsLoading(true);
+
+    if (isRegister && password !== confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const endpoint = isRegister ? '/auth/register' : '/auth/login';
+      const payload = isRegister 
+        ? { email, password, role }
+        : { email, password };
+
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Authentication failed');
+      }
+
+      localStorage.setItem('swachhlens_auth_token', data.access_token);
+      localStorage.setItem('swachhlens_role', data.role);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -48,6 +83,12 @@ export default function LoginPage() {
               : 'Authenticate to access the cinematic control center'}
           </p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           
@@ -150,10 +191,11 @@ export default function LoginPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3.5 rounded-full bg-white hover:bg-slate-200 text-black font-semibold text-sm flex items-center justify-center gap-2 transition-all mt-8"
+            disabled={isLoading}
+            className="w-full py-3.5 rounded-full bg-white hover:bg-slate-200 text-black font-semibold text-sm flex items-center justify-center gap-2 transition-all mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>{isRegister ? 'Request Access' : 'Login to Control Center'}</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{isLoading ? 'Processing...' : (isRegister ? 'Request Access' : 'Login to Control Center')}</span>
+            {!isLoading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 

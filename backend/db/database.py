@@ -1,123 +1,109 @@
 import os
 import json
+import psycopg2
+from psycopg2.extras import RealDictCursor, Json
 from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-DB_NAME = os.getenv("DB_NAME", "swachhlens_db")
+PG_URI = os.getenv("PG_URI", "postgresql://postgres:postgrespassword@localhost:5432/SwachhLens")
 
-class MongoOrFallbackDB:
+class PostgresDB:
     def __init__(self):
-        self.use_mongo = False
-        self.client = None
-        self.db = None
-        self.collection = None
-        self._memory_data = []
-        self.storage_file = os.path.join(os.path.dirname(__file__), "storage_fallback.json")
-        
+        self.conn = None
         try:
-            from pymongo import MongoClient
-            client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1500)
-            client.admin.command('ping')
-            self.client = client
-            self.db = client[DB_NAME]
-            self.collection = self.db["complaints"]
-            self.use_mongo = True
-            print(f"[DB] Connected to MongoDB at {MONGO_URI}, database '{DB_NAME}'")
+            self.conn = psycopg2.connect(PG_URI)
+            self.conn.autocommit = True
+            self._init_db()
+            print(f"[DB] Connected to PostgreSQL at {PG_URI}")
         except Exception as e:
-            print(f"[DB Warning] MongoDB connection unavailable ({e}). Using local persistent fallback store.")
-            self.use_mongo = False
-            self._load_fallback()
+            print(f"[DB Error] Failed to connect to PostgreSQL: {e}. Please ensure the database is running (e.g., via docker-compose up -d).")
 
-    def _load_fallback(self):
-        if os.path.exists(self.storage_file):
-            try:
-                with open(self.storage_file, "r", encoding="utf-8") as f:
-                    self._memory_data = json.load(f)
-            except Exception:
-                self._memory_data = []
-
-    def _save_fallback(self):
-        try:
-            with open(self.storage_file, "w", encoding="utf-8") as f:
-                json.dump(self._memory_data, f, indent=2)
-        except Exception as e:
-            print(f"[DB Error] Failed to save fallback storage: {e}")
+    def _init_db(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS complaints (
+                    id VARCHAR(255) PRIMARY KEY,
+                    data JSONB NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    email VARCHAR(255) PRIMARY KEY,
+                    password_hash VARCHAR(255) NOT NULL,
+                    role VARCHAR(50) NOT NULL
+                )
+            """)
+            # Seed default admin user (password: password123)
+            default_hash = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjIQqiRQmO"
+            cur.execute("""
+                INSERT INTO users (email, password_hash, role) 
+                VALUES ('officer@swachhlens.gov.in', %s, 'commissioner')
+                ON CONFLICT (email) DO NOTHING
+            """, (default_hash,))
 
     def insert_one(self, doc: dict):
+        doc_id = doc.get("id")
         doc_to_save = dict(doc)
-        if self.use_mongo:
-            if "id" in doc_to_save and "_id" not in doc_to_save:
-                doc_to_save["_id"] = doc_to_save["id"]
-            self.collection.insert_one(doc_to_save)
-            return doc_to_save.get("id")
-        else:
-            self._memory_data.append(doc_to_save)
-            self._save_fallback()
-            return doc_to_save.get("id")
+        doc_to_save.pop("_id", None)
+        
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO complaints (id, data) VALUES (%s, %s) ON CONFLICT (id) DO NOTHING",
+                (doc_id, Json(doc_to_save))
+            )
+        return doc_id
 
     def find_all(self, query=None) -> list:
-        if self.use_mongo:
-            results = list(self.collection.find(query or {}, {"_id": 0}))
-            return results
-        else:
-            results = []
-            query = query or {}
-            for item in self._memory_data:
-                match = True
-                for k, v in query.items():
-                    if item.get(k) != v:
-                        match = False
-                        break
-                if match:
-                    results.append(item)
-            return results
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if not query:
+                cur.execute("SELECT data FROM complaints")
+            else:
+                cur.execute("SELECT data FROM complaints WHERE data @> %s", (Json(query),))
+            rows = cur.fetchall()
+            return [row["data"] for row in rows]
 
     def find_one(self, query: dict) -> dict:
-        if self.use_mongo:
-            res = self.collection.find_one(query, {"_id": 0})
-            return res
-        else:
-            for item in self._memory_data:
-                match = True
-                for k, v in query.items():
-                    if item.get(k) != v:
-                        match = False
-                        break
-                if match:
-                    return item
-            return None
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT data FROM complaints WHERE data @> %s LIMIT 1", (Json(query),))
+            row = cur.fetchone()
+            return row["data"] if row else None
 
     def update_one(self, query: dict, update: dict) -> bool:
-        if self.use_mongo:
-            res = self.collection.update_one(query, update)
-            return res.modified_count > 0 or res.matched_count > 0
-        else:
-            set_dict = update.get("$set", {})
-            for item in self._memory_data:
-                match = True
-                for k, v in query.items():
-                    if item.get(k) != v:
-                        match = False
-                        break
-                if match:
-                    item.update(set_dict)
-                    self._save_fallback()
-                    return True
+        set_dict = update.get("$set", {})
+        if not set_dict:
             return False
+            
+        with self.conn.cursor() as cur:
+            cur.execute("""
+                UPDATE complaints
+                SET data = data || %s
+                WHERE data @> %s
+            """, (Json(set_dict), Json(query)))
+            return cur.rowcount > 0
 
     def count_documents(self, query=None) -> int:
-        if self.use_mongo:
-            return self.collection.count_documents(query or {})
-        else:
-            return len(self.find_all(query))
+        with self.conn.cursor() as cur:
+            if not query:
+                cur.execute("SELECT COUNT(*) FROM complaints")
+            else:
+                cur.execute("SELECT COUNT(*) FROM complaints WHERE data @> %s", (Json(query),))
+            return cur.fetchone()[0]
+
+    def insert_user(self, email: str, password_hash: str, role: str):
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO users (email, password_hash, role) VALUES (%s, %s, %s)",
+                (email, password_hash, role)
+            )
+
+    def get_user_by_email(self, email: str) -> dict:
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT email, password_hash, role FROM users WHERE email = %s", (email,))
+            return cur.fetchone()
 
     def clear_all(self):
-        if self.use_mongo:
-            self.collection.delete_many({})
-        else:
-            self._memory_data = []
-            self._save_fallback()
+        with self.conn.cursor() as cur:
+            cur.execute("TRUNCATE TABLE complaints")
 
-db = MongoOrFallbackDB()
+db = PostgresDB()

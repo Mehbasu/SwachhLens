@@ -14,7 +14,6 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import LocationPicker from '../components/LocationPicker';
 import PrimaryButton from '../components/PrimaryButton';
-import { categoriesConfig, volumeConfig } from '../data/mockData';
 import { submitComplaint } from '../services/api';
 import { useReports } from '../context/ReportsContext';
 
@@ -22,8 +21,7 @@ export default function ReportScreen({ navigation }) {
   const { addReport } = useReports();
 
   const [selectedImage, setSelectedImage] = useState(null);
-  const [category, setCategory] = useState('overflowing_bin');
-  const [volume, setVolume] = useState('medium');
+  const [capturedTimestamp, setCapturedTimestamp] = useState(null);
   const [comment, setComment] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -32,16 +30,17 @@ export default function ReportScreen({ navigation }) {
     address: 'Boring Road Crossing, near Axis Bank, Patna'
   });
 
-  // Pick image from camera
+  // Pick image or video from camera
   const handleLaunchCamera = async () => {
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('Permission Denied', 'Camera access is required to take photos of waste issues.');
+        Alert.alert('Permission Denied', 'Camera access is required to take photos/videos of waste issues.');
         return;
       }
 
       const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         quality: 0.8,
         aspect: [4, 3]
@@ -49,24 +48,26 @@ export default function ReportScreen({ navigation }) {
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         setSelectedImage(result.assets[0].uri);
+        setCapturedTimestamp(new Date().toISOString());
       }
     } catch {
       // Fallback sample image if running in web/emulator without physical camera
       setSelectedImage('https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80');
+      setCapturedTimestamp(new Date().toISOString());
     }
   };
 
-  // Pick image from gallery
+  // Pick image or video from gallery
   const handleLaunchGallery = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('Permission Denied', 'Gallery access is required to choose photo.');
+        Alert.alert('Permission Denied', 'Gallery access is required to choose photo/video.');
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         quality: 0.8,
         aspect: [4, 3]
@@ -74,10 +75,12 @@ export default function ReportScreen({ navigation }) {
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         setSelectedImage(result.assets[0].uri);
+        setCapturedTimestamp(new Date().toISOString());
       }
     } catch {
       // Fallback sample image
       setSelectedImage('https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80');
+      setCapturedTimestamp(new Date().toISOString());
     }
   };
 
@@ -87,8 +90,7 @@ export default function ReportScreen({ navigation }) {
     try {
       const submittedReport = await submitComplaint({
         imageUri: selectedImage,
-        category,
-        volume,
+        timestamp: capturedTimestamp,
         gps: location.gps,
         address: location.address,
         comment: comment.trim() || 'Reported via SwachhLens Citizen App'
@@ -131,32 +133,35 @@ export default function ReportScreen({ navigation }) {
       >
         <Text style={styles.screenTitle}>Report a Waste Issue</Text>
         <Text style={styles.screenSub}>
-          Take or upload a photo to immediately alert municipal sanitation crews.
+          Take or upload a photo/video to immediately alert municipal sanitation crews.
         </Text>
 
-        {/* Photo Capture Section */}
+        {/* Photo/Video Capture Section */}
         <View style={styles.photoContainer}>
           {selectedImage ? (
             <View style={styles.previewWrapper}>
               <Image source={{ uri: selectedImage }} style={styles.previewImage} />
               <TouchableOpacity
                 style={styles.retakeBtn}
-                onPress={() => setSelectedImage(null)}
+                onPress={() => {
+                  setSelectedImage(null);
+                  setCapturedTimestamp(null);
+                }}
               >
-                <Text style={styles.retakeBtnText}>🔄 Change Photo</Text>
+                <Text style={styles.retakeBtnText}>🔄 Change Media</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.captureBox}>
               <Text style={styles.cameraIcon}>📸</Text>
-              <Text style={styles.capturePrompt}>No photo selected yet</Text>
+              <Text style={styles.capturePrompt}>No media selected yet</Text>
               
               <View style={styles.photoBtnRow}>
                 <TouchableOpacity
                   style={styles.photoBtnPrimary}
                   onPress={handleLaunchCamera}
                 >
-                  <Text style={styles.photoBtnText}>📷 Take Photo</Text>
+                  <Text style={styles.photoBtnText}>📷 Take Photo/Video</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -175,70 +180,6 @@ export default function ReportScreen({ navigation }) {
           location={location}
           onLocationChange={setLocation}
         />
-
-        {/* Waste Category Selector */}
-        <Text style={styles.fieldLabel}>Select Category (AI Pre-selects)</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.chipScroll}
-        >
-          {Object.entries(categoriesConfig).map(([key, cfg]) => {
-            const isSelected = category === key;
-            return (
-              <TouchableOpacity
-                key={key}
-                onPress={() => setCategory(key)}
-                style={[
-                  styles.chip,
-                  {
-                    backgroundColor: isSelected ? cfg.color + '25' : '#1e293b',
-                    borderColor: isSelected ? cfg.color : '#334155',
-                  }
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    { color: isSelected ? cfg.color : '#cbd5e1' }
-                  ]}
-                >
-                  {cfg.shortLabel}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* Volume Selector */}
-        <Text style={styles.fieldLabel}>Estimated Waste Volume</Text>
-        <View style={styles.volumeRow}>
-          {Object.entries(volumeConfig).map(([key, cfg]) => {
-            const isSelected = volume === key;
-            return (
-              <TouchableOpacity
-                key={key}
-                onPress={() => setVolume(key)}
-                style={[
-                  styles.volumeChip,
-                  {
-                    backgroundColor: isSelected ? '#10b98125' : '#1e293b',
-                    borderColor: isSelected ? '#10b981' : '#334155',
-                  }
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.volumeChipText,
-                    { color: isSelected ? '#34d399' : '#94a3b8' }
-                  ]}
-                >
-                  {key.replace('_', ' ').toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
 
         {/* Optional Comment Input */}
         <Text style={styles.fieldLabel}>Add a Note / Remark (Optional)</Text>
@@ -368,39 +309,6 @@ const styles = StyleSheet.create({
     color: '#f8fafc',
     marginBottom: 8,
     marginTop: 6,
-  },
-  chipScroll: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginRight: 8,
-  },
-  chipText: {
-    fontSize: 12.5,
-    fontWeight: '700',
-  },
-  volumeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 6,
-    marginBottom: 16,
-  },
-  volumeChip: {
-    flex: 1,
-    paddingVertical: 9,
-    alignItems: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  volumeChipText: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.5,
   },
   textArea: {
     backgroundColor: '#1e293b',

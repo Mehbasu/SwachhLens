@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from routes.complaints import router as complaints_router
+from routes.auth import router as auth_router
 from services.upload_service import UPLOAD_DIR
 
 app = FastAPI(
@@ -25,7 +26,8 @@ app.add_middleware(
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-# Include complaints router
+# Include routers
+app.include_router(auth_router)
 app.include_router(complaints_router)
 
 @app.get("/health", tags=["System"])

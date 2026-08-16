@@ -1,6 +1,6 @@
 # SwachhLens Backend API
 
-The backend REST API for **SwachhLens**, an AI-powered civic waste management complaint and municipal response system. Built with Python, FastAPI, MongoDB, and Pydantic.
+The backend REST API for **SwachhLens**, an AI-powered civic waste management complaint and municipal response system. Built with Python, FastAPI, PostgreSQL, and Pydantic.
 
 ---
 
@@ -18,7 +18,7 @@ The backend REST API for **SwachhLens**, an AI-powered civic waste management co
 ## Tech Stack
 
 - **Framework**: Python 3.12+ with FastAPI
-- **Database**: MongoDB (via PyMongo / Motor) with automatic local persistent fallback
+- **Database**: PostgreSQL (via Psycopg2)
 - **Validation**: Pydantic v2
 - **Storage**: Multipart file upload handling to local `/uploads` directory (ready for Cloudinary / AWS S3 integration)
 
@@ -40,7 +40,7 @@ backend/
 ├── models/
 │   └── complaint.py                 # Pydantic schemas (Complaint, StatusUpdate, Hotspot, Analytics)
 ├── db/
-│   └── database.py                  # MongoDB database manager with local fallback
+│   ├── database.py                  # PostgreSQL database manager
 ├── uploads/                         # Stored image files directory
 ├── seed_data.py                     # Initial database seeding script (18 complaints)
 ├── test_backend.py                  # Test suite verifying all endpoints
@@ -82,8 +82,8 @@ cp .env.example .env
 
 Default `.env` contents:
 ```env
-MONGO_URI=mongodb://localhost:27017
-DB_NAME=swachhlens_db
+PG_URI=postgresql://postgres:postgrespassword@localhost:5432/SwachhLens
+DB_NAME=SwachhLens
 PORT=8000
 HOST=0.0.0.0
 BASE_URL=http://localhost:8000

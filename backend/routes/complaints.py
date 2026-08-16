@@ -25,7 +25,8 @@ async def create_complaint(
     comment: Optional[str] = Form(""),
     address: Optional[str] = Form(""),
     category: Optional[str] = Form(None),
-    volume: Optional[str] = Form(None)
+    volume: Optional[str] = Form(None),
+    timestamp: Optional[str] = Form(None)
 ):
     """
     Creates a new waste complaint with automated AI vision classification,
@@ -55,7 +56,7 @@ async def create_complaint(
     final_volume = volume if (volume and volume.strip() and volume != "string") else ai_res["volume"]
     ai_confidence = ai_res["ai_confidence"]
 
-    timestamp_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    timestamp_iso = timestamp if timestamp else datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     # 4. Duplicate complaint detection
     existing_complaints = db.find_all()

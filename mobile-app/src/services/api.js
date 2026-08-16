@@ -86,6 +86,7 @@ export async function submitComplaint(data) {
     if (data.address) formData.append('address', data.address);
     if (data.category) formData.append('category', data.category);
     if (data.volume) formData.append('volume', data.volume);
+    if (data.timestamp) formData.append('timestamp', data.timestamp);
 
     const response = await apiClient.post('/complaints', formData, {
       headers: {
