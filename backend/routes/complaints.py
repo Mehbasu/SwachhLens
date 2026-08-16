@@ -114,8 +114,7 @@ async def list_complaints(
     category: Optional[str] = Query(None),
     min_priority: Optional[float] = Query(None),
     sort_by: Optional[str] = Query("priority"),
-    sort_order: Optional[str] = Query("desc"),
-    current_user: dict = Depends(get_current_user)
+    sort_order: Optional[str] = Query("desc")
 ):
     """
     Returns list of complaints with filtering by status, category, min_priority, and sorting options.
@@ -233,7 +232,7 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/complaints/{id}", response_model=ComplaintResponse)
-async def get_complaint_by_id(id: str, current_user: dict = Depends(get_current_user)):
+async def get_complaint_by_id(id: str):
     """
     Retrieves details for a single complaint by ID.
     """
