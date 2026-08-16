@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, model_validator
-from typing import Optional, Literal, Dict, Any
+from typing import Optional, Literal, Dict, Any, List
 
 class GPSLocation(BaseModel):
     lat: float
@@ -73,3 +73,4 @@ class AnalyticsSummary(BaseModel):
     by_status: Dict[str, int]
     by_category: Dict[str, int]
     urgent_count: int
+    timeline: List[Dict[str, Any]] = []

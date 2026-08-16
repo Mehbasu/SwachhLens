@@ -1,16 +1,46 @@
-# React + Vite
+# SwachhLens Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The SwachhLens Dashboard is the central command center for municipal waste management. It provides a real-time, AI-powered overview of waste complaints, priority triage, and sanitation squad dispatch monitoring.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Live System Feed**: Real-time updates as new complaints are submitted and classified by AI.
+- **KPI Summary**: Quick metrics on total reports, pending, in-progress, resolved, and urgent complaints.
+- **Live Geolocation Map**: Visual map displaying waste complaints categorized by priority and status.
+- **Urgent Priority Queue**: A dedicated queue for high-priority complaints that require immediate action (e.g., hazardous waste or severe blockage).
+- **Sanitation Analytics**: Insights into complaint trends over 30 days, category breakdown, and status distribution.
+- **Complaint Management**: View detailed complaint information, modify statuses, and assign teams to resolve issues.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React + Vite
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **Maps**: React Leaflet
+- **Icons**: Lucide React
 
-## Expanding the Oxlint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Navigate to the dashboard directory:
+   ```bash
+   cd dashboard
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+The dashboard will be available at `http://localhost:5173`. Make sure the backend server is running on `http://localhost:8000` for data to load properly.

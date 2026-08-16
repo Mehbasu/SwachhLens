@@ -31,7 +31,8 @@ export default function LoginPage() {
         ? { email, password, role }
         : { email, password };
 
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

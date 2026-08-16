@@ -13,7 +13,19 @@ function ProtectedRoute({ children }) {
   const token = localStorage.getItem('swachhlens_auth_token');
   
   if (!token) {
-    // If no token exists, redirect unauthenticated users to the welcome page
+    return <Navigate to="/welcome" replace />;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('swachhlens_auth_token');
+      localStorage.removeItem('swachhlens_role');
+      return <Navigate to="/welcome" replace />;
+    }
+  } catch (e) {
+    localStorage.removeItem('swachhlens_auth_token');
+    localStorage.removeItem('swachhlens_role');
     return <Navigate to="/welcome" replace />;
   }
   

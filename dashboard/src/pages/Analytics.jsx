@@ -153,9 +153,11 @@ export default function Analytics() {
                 />
                 <YAxis stroke="#94a3b8" fontSize={11} allowDecimals={false} />
                 <Tooltip
+                  cursor={{ fill: '#1e293b' }}
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', color: '#fff', fontSize: '12px' }}
+                  itemStyle={{ color: '#e2e8f0' }}
                 />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]}>
                   {categoryBarData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -192,6 +194,7 @@ export default function Analytics() {
                 </Pie>
                 <Tooltip
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', color: '#fff', fontSize: '12px' }}
+                  itemStyle={{ color: '#e2e8f0' }}
                 />
                 <Legend
                   verticalAlign="bottom"
@@ -244,6 +247,7 @@ export default function Analytics() {
               <YAxis stroke="#94a3b8" fontSize={11} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', color: '#fff', fontSize: '12px' }}
+                itemStyle={{ color: '#e2e8f0' }}
               />
               <Area type="monotone" dataKey="submitted" stroke="#f59e0b" fillOpacity={1} fill="url(#colorSubmitted)" strokeWidth={2} />
               <Area type="monotone" dataKey="resolved" stroke="#10b981" fillOpacity={1} fill="url(#colorResolved)" strokeWidth={2} />

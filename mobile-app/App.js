@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 
 import { ReportsProvider } from './src/context/ReportsContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 
 // Screens
 import HomeScreen from './src/screens/HomeScreen';
@@ -108,24 +109,36 @@ function BottomTabNavigator() {
 }
 
 // Main App Navigation Root
-export default function App() {
+function RootNavigator() {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const bgColor = isDark ? '#0f172a' : '#f1f5f9';
+
   return (
-    <ReportsProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: 'slide_from_right',
-            contentStyle: { backgroundColor: '#0f172a' }
-          }}
-        >
+    <NavigationContainer>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+          contentStyle: { backgroundColor: bgColor }
+        }}
+      >
           <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
           <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
           <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </ReportsProvider>
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <ReportsProvider>
+        <RootNavigator />
+      </ReportsProvider>
+    </ThemeProvider>
   );
 }
 

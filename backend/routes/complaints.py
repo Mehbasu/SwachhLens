@@ -1,9 +1,10 @@
 import json
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query, Request
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query, Request, Depends
 
 from db.database import db
+from routes.auth import get_current_user
 from models.complaint import ComplaintResponse, StatusUpdate, Hotspot, AnalyticsSummary
 from services.upload_service import save_upload_file
 from services.ai_service import classify_waste
@@ -51,7 +52,10 @@ async def create_complaint(
     image_url = save_upload_file(image, base_url=base_url)
 
     # 3. AI waste vision classification
-    ai_res = classify_waste(image.filename or "uploaded_waste.jpg")
+    import os
+    saved_filename = image_url.split('/')[-1]
+    saved_filepath = os.path.join(os.path.dirname(__file__), "..", "uploads", saved_filename)
+    ai_res = classify_waste(saved_filepath)
     final_category = category if (category and category.strip() and category != "string") else ai_res["category"]
     final_volume = volume if (volume and volume.strip() and volume != "string") else ai_res["volume"]
     ai_confidence = ai_res["ai_confidence"]
@@ -63,10 +67,14 @@ async def create_complaint(
     is_dup, dup_of, dup_count = check_duplicate(gps_dict, final_category, timestamp_iso, existing_complaints)
 
     # 5. Priority calculation
-    if is_dup:
-        priority_score = 0.0
-    else:
-        priority_score = calculate_priority(final_category, final_volume, gps_dict, dup_count)
+    priority_score = calculate_priority(final_category, final_volume, gps_dict, dup_count)
+    
+    # 5.5 Boost original complaint if duplicate
+    if is_dup and dup_of:
+        parent = db.find_one({"id": dup_of})
+        if parent:
+            new_priority = min(100.0, parent.get("priority_score", 0.0) + 5.0)
+            db.update_one({"id": dup_of}, {"$set": {"priority_score": new_priority}})
 
     # 6. Operational recommendation action
     rec_action = get_recommended_action(final_category, final_volume, priority_score)
@@ -106,7 +114,8 @@ async def list_complaints(
     category: Optional[str] = Query(None),
     min_priority: Optional[float] = Query(None),
     sort_by: Optional[str] = Query("priority"),
-    sort_order: Optional[str] = Query("desc")
+    sort_order: Optional[str] = Query("desc"),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Returns list of complaints with filtering by status, category, min_priority, and sorting options.
@@ -134,7 +143,7 @@ async def list_complaints(
 
 
 @router.get("/complaints/hotspots", response_model=List[Hotspot])
-async def get_hotspots():
+async def get_hotspots(current_user: dict = Depends(get_current_user)):
     """
     Geographic aggregation endpoint grouping complaints by ~100m grid (3 decimal places lat/lng)
     for heatmap rendering.
@@ -164,9 +173,9 @@ async def get_hotspots():
 
 
 @router.get("/analytics/summary", response_model=AnalyticsSummary)
-async def get_analytics_summary():
+async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
     """
-    Returns aggregated dashboard metrics including status breakdown, category counts, and urgent complaint count.
+    Returns aggregated dashboard metrics including status breakdown, category counts, urgent complaint count, and a 30-day timeline.
     """
     items = db.find_all()
     total = len(items)
@@ -174,6 +183,7 @@ async def get_analytics_summary():
     by_status = {"submitted": 0, "in_progress": 0, "resolved": 0}
     by_category = {}
     urgent_count = 0
+    date_counts = {}
 
     for item in items:
         st = item.get("status", "submitted")
@@ -187,17 +197,43 @@ async def get_analytics_summary():
 
         if float(item.get("priority_score", 0)) >= 80.0:
             urgent_count += 1
+            
+        # Timeline aggregation
+        ts = item.get("timestamp")
+        if ts:
+            try:
+                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                date_str = dt.strftime("%b %d") # e.g., "Aug 13"
+                if date_str not in date_counts:
+                    date_counts[date_str] = {"submitted": 0, "in_progress": 0, "resolved": 0, "_dt": dt}
+                if st in date_counts[date_str]:
+                    date_counts[date_str][st] += 1
+            except Exception:
+                pass
+
+    # Sort timeline by date
+    sorted_dates = sorted(date_counts.values(), key=lambda x: x["_dt"])
+    timeline = []
+    for d in sorted_dates:
+        date_str = d["_dt"].strftime("%b %d")
+        timeline.append({
+            "date": date_str,
+            "submitted": d["submitted"],
+            "in_progress": d["in_progress"],
+            "resolved": d["resolved"]
+        })
 
     return {
         "total": total,
         "by_status": by_status,
         "by_category": by_category,
-        "urgent_count": urgent_count
+        "urgent_count": urgent_count,
+        "timeline": timeline
     }
 
 
 @router.get("/complaints/{id}", response_model=ComplaintResponse)
-async def get_complaint_by_id(id: str):
+async def get_complaint_by_id(id: str, current_user: dict = Depends(get_current_user)):
     """
     Retrieves details for a single complaint by ID.
     """
@@ -208,7 +244,7 @@ async def get_complaint_by_id(id: str):
 
 
 @router.patch("/complaints/{id}/status", response_model=ComplaintResponse)
-async def update_complaint_status(id: str, payload: StatusUpdate):
+async def update_complaint_status(id: str, payload: StatusUpdate, current_user: dict = Depends(get_current_user)):
     """
     Updates status and optional team assignment for a complaint.
     """

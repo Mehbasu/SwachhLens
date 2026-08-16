@@ -5,6 +5,7 @@ import PriorityBadge from '../components/PriorityBadge';
 import StatusTag from '../components/StatusTag';
 import PriorityScoreBar from '../components/PriorityScoreBar';
 import ResolveModal from '../components/ResolveModal';
+import { useToasts } from '../components/ui/toast';
 import { categoriesConfig } from '../data/mockData';
 import {
   ArrowLeft,
@@ -35,8 +36,8 @@ export default function ComplaintDetail() {
 
   // Resolution modal state
   const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState(null);
   const [showImageLightbox, setShowImageLightbox] = useState(false);
+  const toasts = useToasts();
 
   const fetchComplaint = async () => {
     setLoading(true);
@@ -89,8 +90,7 @@ export default function ComplaintDetail() {
   };
 
   const triggerToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+    toasts.success(msg);
   };
 
   if (loading) {
@@ -134,13 +134,6 @@ export default function ComplaintDetail() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-20 right-6 z-[3000] bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl font-semibold text-xs flex items-center gap-2 animate-bounce">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
 
       {/* Top Navigation */}
       <div className="flex items-center justify-between">

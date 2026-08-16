@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mock30DaysTrend, mockWardPerformance } from '../data/mockData';
 
 // Configure Axios instance for backend connection
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -11,6 +11,17 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
+});
+
+// Interceptor to attach JWT token to every request
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('swachhlens_auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 /**
