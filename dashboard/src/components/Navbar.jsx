@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Menu, Search, Bell, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { resetMockData } from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { GooeySearchBar } from './ui/animated-search-bar';
 
 export default function Navbar({ searchValue, onSearchChange }) {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -24,9 +23,11 @@ export default function Navbar({ searchValue, onSearchChange }) {
 
   return (
     <header className="sticky top-0 z-30 h-16 bg-slate-950/40 backdrop-blur-2xl border-b border-white/5 px-4 md:px-6 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
-      {/* Left side: Search */}
+      {/* Left side: Branding */}
       <div className="flex items-center gap-3 flex-1 max-w-xl">
-        <GooeySearchBar onGlobalSearch={onSearchChange} />
+        <h1 className="text-xl font-bold bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
+          SwachhLens
+        </h1>
       </div>
 
       {/* Right side: Live badge, reset data button, notifications */}

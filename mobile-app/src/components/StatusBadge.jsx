@@ -14,18 +14,17 @@ export default function StatusBadge({ status, size = 'medium' }) {
         {
           backgroundColor: config.bgLight,
           borderColor: config.borderColor,
-          paddingVertical: isSmall ? 2 : 5,
-          paddingHorizontal: isSmall ? 8 : 12,
+          paddingVertical: isSmall ? 2 : 4,
+          paddingHorizontal: isSmall ? 8 : 10,
         }
       ]}
     >
-      <View style={[styles.dot, { backgroundColor: config.color }]} />
       <Text
         style={[
           styles.text,
           {
             color: config.color,
-            fontSize: isSmall ? 11 : 12.5,
+            fontSize: isSmall ? 10 : 12,
           }
         ]}
       >
@@ -40,14 +39,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    borderRadius: 20,
+    borderRadius: 6,
     borderWidth: 1,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginRight: 6,
   },
   text: {
     fontWeight: '600',

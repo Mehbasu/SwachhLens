@@ -9,6 +9,24 @@ from seed_data import seed_database
 
 client = TestClient(app)
 
+auth_headers = None
+def get_auth_headers():
+    global auth_headers
+    if auth_headers is None:
+        res = client.post("/auth/register", json={"email": "testuser@swachhlens.gov.in", "password": "password123", "role": "inspector"})
+        if res.status_code == 200:
+            token = res.json().get("access_token")
+            auth_headers = {"Authorization": f"Bearer {token}"}
+        else:
+            res = client.post("/auth/login", json={"email": "testuser@swachhlens.gov.in", "password": "password123"})
+            if res.status_code == 200:
+                token = res.json().get("access_token")
+                auth_headers = {"Authorization": f"Bearer {token}"}
+            else:
+                print(f"Warning: Login failed, using empty headers. Response: {res.text}")
+                auth_headers = {}
+    return auth_headers
+
 def test_health():
     res = client.get("/health")
     assert res.status_code == 200
@@ -65,7 +83,7 @@ def test_patch_status():
         "status": "in_progress",
         "assigned_team": "Patna Special Bio-Hazard Squad"
     }
-    res = client.patch("/complaints/COMP-2026-001/status", json=payload)
+    res = client.patch("/complaints/COMP-2026-001/status", json=payload, headers=get_auth_headers())
     assert res.status_code == 200
     updated = res.json()
     assert updated["status"] == "in_progress"
@@ -73,7 +91,7 @@ def test_patch_status():
     print("[PASS] PATCH /complaints/COMP-2026-001/status")
 
 def test_hotspots():
-    res = client.get("/complaints/hotspots")
+    res = client.get("/complaints/hotspots", headers=get_auth_headers())
     assert res.status_code == 200
     hotspots = res.json()
     assert isinstance(hotspots, list)
@@ -81,7 +99,7 @@ def test_hotspots():
     print(f"[PASS] GET /complaints/hotspots (returned {len(hotspots)} clusters)")
 
 def test_analytics_summary():
-    res = client.get("/analytics/summary")
+    res = client.get("/analytics/summary", headers=get_auth_headers())
     assert res.status_code == 200
     summary = res.json()
     assert "total" in summary

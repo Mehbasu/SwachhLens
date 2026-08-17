@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { mock30DaysTrend, mockWardPerformance } from '../data/mockData';
 
 // Configure Axios instance for backend connection
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
@@ -203,8 +202,8 @@ export const getAnalyticsSummary = async () => {
         urgentCount: summaryData.urgent_count || 0
       },
       categoryCounts: summaryData.by_category || {},
-      timeline: mock30DaysTrend,
-      wardPerformance: mockWardPerformance
+      timeline: summaryData.timeline || [],
+      wardPerformance: summaryData.ward_performance || []
     };
   } catch (error) {
     console.error('Failed to fetch analytics summary:', error);
@@ -212,8 +211,8 @@ export const getAnalyticsSummary = async () => {
       success: false,
       summary: { total: 0, pending: 0, inProgress: 0, resolved: 0, urgentCount: 0 },
       categoryCounts: {},
-      timeline: mock30DaysTrend,
-      wardPerformance: mockWardPerformance,
+      timeline: [],
+      wardPerformance: [],
       error: error.message
     };
   }

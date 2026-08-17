@@ -4,7 +4,7 @@ import random
 from typing import Dict, Any
 
 try:
-    import google.generativeai as genai
+    from google import genai
     from PIL import Image
     HAS_GENAI = True
 except ImportError:
@@ -33,8 +33,7 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
     
     if HAS_GENAI and api_key and os.path.exists(image_path):
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            client = genai.Client(api_key=api_key)
             
             img = Image.open(image_path)
             
@@ -46,7 +45,10 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
             Do not include markdown blocks or any other text.
             """
             
-            response = model.generate_content([prompt, img])
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=[prompt, img]
+            )
             text = response.text.strip()
             if text.startswith('```json'):
                 text = text[7:-3]

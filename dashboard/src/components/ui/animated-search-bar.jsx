@@ -279,7 +279,7 @@ export const GooeySearchBar = ({ onGlobalSearch }) => {
   const inputRef = useRef(null);
 
   const [state, setState] = useState({
-    step: 1,
+    step: 2,
     searchData: [],
     searchText: "",
     isLoading: false,
@@ -439,9 +439,6 @@ export const GooeySearchBar = ({ onGlobalSearch }) => {
                 placeholder="Search location (e.g., Boring Road)..."
                 aria-label="Search input"
                 onChange={handleSearch}
-                onBlur={() => {
-                    if (!state.searchText) setState(s => ({...s, step: 1}))
-                }}
               />
             )}
           </motion.div>

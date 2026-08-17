@@ -74,3 +74,4 @@ class AnalyticsSummary(BaseModel):
     by_category: Dict[str, int]
     urgent_count: int
     timeline: List[Dict[str, Any]] = []
+    ward_performance: List[Dict[str, Any]] = []

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAnalyticsSummary } from '../services/api';
 import { categoriesConfig, statusConfig } from '../data/mockData';
+import StatisticCard2 from '../components/ui/demo';
 import {
   BarChart,
   Bar,
@@ -101,29 +102,8 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* KPI Highlights Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
-          <div className="text-[11px] font-semibold uppercase text-slate-400">Total Grievances</div>
-          <div className="text-2xl font-black text-white">{data.summary.total}</div>
-        </div>
-        <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
-          <div className="text-[11px] font-semibold uppercase text-slate-400">Resolution Efficiency</div>
-          <div className="text-2xl font-black text-emerald-400">
-            {Math.round((data.summary.resolved / data.summary.total) * 100)}%
-          </div>
-        </div>
-        <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
-          <div className="text-[11px] font-semibold uppercase text-slate-400">Avg Cleanup SLA</div>
-          <div className="text-2xl font-black text-teal-400">3.4 Hours</div>
-        </div>
-        <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
-          <div className="text-[11px] font-semibold uppercase text-slate-400">Urgent Critical Ratio</div>
-          <div className="text-2xl font-black text-rose-400">
-            {Math.round((data.summary.urgentCount / data.summary.total) * 100)}%
-          </div>
-        </div>
-      </div>
+      {/* Advanced Statistic Cards from Shadcn */}
+      <StatisticCard2 summary={data.summary} />
 
       {/* Grid Row 1: Category Bar Chart & Status Donut Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

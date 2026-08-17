@@ -66,15 +66,17 @@ async def create_complaint(
     existing_complaints = db.find_all()
     is_dup, dup_of, dup_count = check_duplicate(gps_dict, final_category, timestamp_iso, existing_complaints)
 
-    # 5. Priority calculation
-    priority_score = calculate_priority(final_category, final_volume, gps_dict, dup_count)
-    
-    # 5.5 Boost original complaint if duplicate
     if is_dup and dup_of:
         parent = db.find_one({"id": dup_of})
         if parent:
-            new_priority = min(100.0, parent.get("priority_score", 0.0) + 5.0)
-            db.update_one({"id": dup_of}, {"$set": {"priority_score": new_priority}})
+            new_priority = min(100.0, parent.get("priority_score", 0.0) + 10.0)
+            db.update_one({"id": dup_of}, {"$set": {"priority_score": new_priority, "status": "submitted"}})
+            parent["priority_score"] = new_priority
+            parent["status"] = "submitted"
+            return parent
+
+    # 5. Priority calculation
+    priority_score = calculate_priority(final_category, final_volume, gps_dict, dup_count)
 
     # 6. Operational recommendation action
     rec_action = get_recommended_action(final_category, final_volume, priority_score)
@@ -183,6 +185,7 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
     by_category = {}
     urgent_count = 0
     date_counts = {}
+    ward_stats = {}
 
     for item in items:
         st = item.get("status", "submitted")
@@ -210,6 +213,28 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
             except Exception:
                 pass
 
+        # Ward performance aggregation
+        team = item.get("assigned_team") or "Unassigned"
+        ward_name = team if "Ward" in team else "Other Wards"
+        
+        if ward_name not in ward_stats:
+            ward_stats[ward_name] = {"total": 0, "resolved": 0, "total_hours": 0.0}
+        
+        ward_stats[ward_name]["total"] += 1
+        if st == "resolved":
+            ward_stats[ward_name]["resolved"] += 1
+            res_ts = item.get("resolved_at")
+            if ts and res_ts:
+                try:
+                    dt1 = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                    dt2 = datetime.fromisoformat(res_ts.replace("Z", "+00:00"))
+                    hours = (dt2 - dt1).total_seconds() / 3600.0
+                    ward_stats[ward_name]["total_hours"] += max(0, hours)
+                except:
+                    ward_stats[ward_name]["total_hours"] += 3.0
+            else:
+                ward_stats[ward_name]["total_hours"] += 3.0
+
     # Sort timeline by date
     sorted_dates = sorted(date_counts.values(), key=lambda x: x["_dt"])
     timeline = []
@@ -222,12 +247,24 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
             "resolved": d["resolved"]
         })
 
+    ward_performance = []
+    for w_name, w_data in ward_stats.items():
+        avg = round(w_data["total_hours"] / w_data["resolved"], 1) if w_data["resolved"] > 0 else 0.0
+        ward_performance.append({
+            "ward": w_name,
+            "total": w_data["total"],
+            "resolved": w_data["resolved"],
+            "avgHours": avg
+        })
+    ward_performance.sort(key=lambda x: x["total"], reverse=True)
+
     return {
         "total": total,
         "by_status": by_status,
         "by_category": by_category,
         "urgent_count": urgent_count,
-        "timeline": timeline
+        "timeline": timeline,
+        "ward_performance": ward_performance
     }
 
 
