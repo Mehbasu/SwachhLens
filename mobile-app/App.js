@@ -1,12 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Animated, Platform, TouchableOpacity, LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  "Passing an object as the argument to 'navigate' is deprecated",
+]);
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { CurvedBottomBar } from 'react-native-curved-bottom-bar';
 import { StatusBar } from 'expo-status-bar';
 
 import { ReportsProvider } from './src/context/ReportsContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { Home, ClipboardList, Camera, Bell, User } from 'lucide-react-native';
 
 // Screens
 import HomeScreen from './src/screens/HomeScreen';
@@ -16,99 +21,112 @@ import MyReportsScreen from './src/screens/MyReportsScreen';
 import ReportDetailScreen from './src/screens/ReportDetailScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import SignupScreen from './src/screens/SignupScreen';
+import SplashScreen from './src/screens/SplashScreen';
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+// Custom Tab Bar Rendering
+const _renderIcon = (routeName, selectedTab, isDark) => {
+  const activeColor = '#3b82f6';
+  const inactiveColor = isDark ? '#94a3b8' : '#64748b';
+  const color = routeName === selectedTab ? activeColor : inactiveColor;
+  let IconComp = Home;
 
-// Custom Bottom Tab Bar Icons helper
-function TabIcon({ emoji, label, focused, isCenter = false, currentStyles }) {
-  if (isCenter) {
-    return (
-      <View style={currentStyles.centerButtonWrapper}>
-        <View style={currentStyles.centerButton}>
-          <Text style={currentStyles.centerEmoji}>📷</Text>
-        </View>
-      </View>
-    );
+  switch (routeName) {
+    case 'HomeTab': IconComp = Home; break;
+    case 'MyReportsTab': IconComp = ClipboardList; break;
+    case 'NotificationsTab': IconComp = Bell; break;
+    case 'ProfileTab': IconComp = User; break;
   }
 
   return (
-    <View style={currentStyles.tabIconContainer}>
-      <Text style={[currentStyles.tabEmoji, focused && currentStyles.tabEmojiFocused]}>
-        {emoji}
-      </Text>
-      <Text style={[currentStyles.tabLabel, focused && currentStyles.tabLabelFocused]}>
-        {label}
-      </Text>
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <IconComp size={24} color={color} />
+      {routeName === selectedTab && (
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: activeColor, marginTop: 4, position: 'absolute', bottom: -10 }} />
+      )}
     </View>
   );
-}
+};
 
 // Bottom Tab Navigator Component
 function BottomTabNavigator() {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === 'dark';
-  const currentStyles = styles(isDark);
+  const bgColor = isDark ? '#1e293b' : '#ffffff';
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: currentStyles.tabBarStyle,
+    <CurvedBottomBar.Navigator
+      type="DOWN"
+      style={{
+        backgroundColor: 'transparent',
+        borderTopWidth: 0,
+        elevation: 0,
+      }}
+      shadowStyle={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 10,
+      }}
+      height={65}
+      circleWidth={60}
+      bgColor={bgColor}
+      initialRouteName="HomeTab"
+      borderTopLeftRight
+      screenOptions={{ headerShown: false }}
+      renderCircle={({ selectedTab, navigate }) => (
+        <View style={[styles.btnCircleUp, { backgroundColor: '#3b82f6', borderColor: isDark ? '#0f172a' : '#f1f5f9' }]}>
+          <TouchableOpacity
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+            onPress={() => navigate('ReportTab')}
+          >
+            <Camera size={28} color="#ffffff" />
+          </TouchableOpacity>
+        </View>
+      )}
+      tabBar={({ routeName, selectedTab, navigate }) => {
+        return (
+          <TouchableOpacity
+            onPress={() => navigate(routeName)}
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          >
+            {_renderIcon(routeName, selectedTab, isDark)}
+          </TouchableOpacity>
+        );
       }}
     >
-      <Tab.Screen
+      <CurvedBottomBar.Screen
         name="HomeTab"
+        position="LEFT"
         component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🏠" label="Home" focused={focused} currentStyles={currentStyles} />
-          ),
-        }}
       />
 
-      <Tab.Screen
+      <CurvedBottomBar.Screen
         name="MyReportsTab"
+        position="LEFT"
         component={MyReportsScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="📋" label="My Reports" focused={focused} currentStyles={currentStyles} />
-          ),
-        }}
       />
 
-      {/* Prominent Center Camera Button */}
-      <Tab.Screen
+      <CurvedBottomBar.Screen
         name="ReportTab"
         component={ReportScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon isCenter focused={focused} currentStyles={currentStyles} />
-          ),
-        }}
+        position="CENTER"
       />
 
-      <Tab.Screen
+      <CurvedBottomBar.Screen
         name="NotificationsTab"
+        position="RIGHT"
         component={NotificationsScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🔔" label="Alerts" focused={focused} currentStyles={currentStyles} />
-          ),
-        }}
       />
 
-      <Tab.Screen
+      <CurvedBottomBar.Screen
         name="ProfileTab"
+        position="RIGHT"
         component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="👤" label="Profile" focused={focused} currentStyles={currentStyles} />
-          ),
-        }}
       />
-    </Tab.Navigator>
+    </CurvedBottomBar.Navigator>
   );
 }
 
@@ -122,12 +140,16 @@ function RootNavigator() {
     <NavigationContainer>
       <StatusBar style={isDark ? "light" : "dark"} />
       <Stack.Navigator
+        initialRouteName="Splash"
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',
           contentStyle: { backgroundColor: bgColor }
         }}
       >
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
           <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
           <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
@@ -146,67 +168,21 @@ export default function App() {
   );
 }
 
-const styles = (isDark) => StyleSheet.create({
-  tabBarStyle: {
-    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-    borderTopColor: isDark ? '#334155' : '#e2e8f0',
-    borderTopWidth: 1,
-    height: 68,
-    paddingBottom: 8,
-    paddingTop: 8,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-  },
-  tabIconContainer: {
+const Stack = createNativeStackNavigator();
+
+const styles = StyleSheet.create({
+  btnCircleUp: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  tabEmoji: {
-    fontSize: 20,
-    opacity: 0.6,
-  },
-  tabEmojiFocused: {
-    opacity: 1,
-    transform: [{ scale: 1.15 }],
-  },
-  tabLabel: {
-    fontSize: 10,
-    color: isDark ? '#94a3b8' : '#64748b',
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  tabLabelFocused: {
-    color: '#10b981',
-    fontWeight: '700',
-  },
-  centerButtonWrapper: {
-    top: -18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerButton: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#10b981',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#10b981',
+    borderWidth: 4,
+    bottom: 30,
+    shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.45,
+    shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 8,
-    borderWidth: 4,
-    borderColor: isDark ? '#0f172a' : '#f1f5f9',
-  },
-  centerEmoji: {
-    fontSize: 26,
   }
 });

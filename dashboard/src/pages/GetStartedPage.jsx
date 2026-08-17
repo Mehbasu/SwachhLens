@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Leaf, ShieldCheck, MapPin, Activity } from 'lucide-react';
+import { FeatureDemo } from '../components/ui/feature-demo';
 
 export default function GetStartedPage() {
   const navigate = useNavigate();
@@ -89,6 +90,11 @@ export default function GetStartedPage() {
             <h3 className="text-white font-bold text-base">Secure Verification</h3>
             <p className="text-slate-400 text-sm">Tamper-proof closure reports with post-resolution photo verification.</p>
           </div>
+        </div>
+        
+        {/* Advanced Features Component */}
+        <div className="w-full mt-10">
+          <FeatureDemo />
         </div>
       </main>
 

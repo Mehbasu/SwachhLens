@@ -5,9 +5,10 @@ import {
   Image,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
+  
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PrimaryButton from '../components/PrimaryButton';
 import { useTheme } from '../contexts/ThemeContext';
 import { categoriesConfig, volumeConfig } from '../data/mockData';

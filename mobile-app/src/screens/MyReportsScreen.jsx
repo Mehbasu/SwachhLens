@@ -5,10 +5,11 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
+  
   StatusBar,
   RefreshControl
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReports } from '../context/ReportsContext';
 import { useTheme } from '../contexts/ThemeContext';
 import ReportCard from '../components/ReportCard';
