@@ -61,6 +61,19 @@ export default function DashboardHome() {
 
   const urgentList = complaints.filter((c) => c.priority_score >= 75).slice(0, 4);
 
+  const stateStr = localStorage.getItem('swachhlens_state');
+  const districtStr = localStorage.getItem('swachhlens_district');
+  const cityStr = localStorage.getItem('swachhlens_city');
+
+  let jurisdictionText = 'National Overview';
+  if (cityStr && cityStr !== 'null') {
+    jurisdictionText = `${cityStr} City Sector`;
+  } else if (districtStr && districtStr !== 'null') {
+    jurisdictionText = `${districtStr} District Sector`;
+  } else if (stateStr && stateStr !== 'null') {
+    jurisdictionText = `${stateStr} State Sector`;
+  }
+
   return (
     <div className="space-y-6 relative">
       {/* Background ambient glow */}
@@ -75,7 +88,7 @@ export default function DashboardHome() {
               Municipal Waste Control Dashboard
             </h1>
             <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
-              Patna Sector
+              {jurisdictionText}
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
@@ -206,7 +219,7 @@ export default function DashboardHome() {
                 </span>
               )}
             </div>
-            <span className="text-xs text-slate-400">Patna Coordinates [25.59, 85.13]</span>
+            <span className="text-xs text-slate-400">Restricted to {jurisdictionText}</span>
           </div>
 
           <MapView complaints={filteredComplaints} height="480px" />

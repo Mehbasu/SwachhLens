@@ -98,6 +98,9 @@ export default function ReportScreen({ navigation }) {
         timestamp: capturedTimestamp,
         gps: location.gps,
         address: location.address,
+        state: location.state,
+        district: location.district,
+        city: location.city,
         comment: comment.trim() || 'Reported via SwachhLens Citizen App'
       });
 

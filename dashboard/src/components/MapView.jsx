@@ -73,8 +73,8 @@ const createCustomIcon = (priorityScore) => {
 export default function MapView({ complaints = [], height = '500px', selectedId = null }) {
   const navigate = useNavigate();
 
-  // Center on Patna, Bihar
-  const defaultCenter = [25.5941, 85.1376];
+  // Center on first available complaint, fallback to Patna
+  const defaultCenter = complaints.length > 0 ? [complaints[0].gps.lat, complaints[0].gps.lng] : [25.5941, 85.1376];
 
   // Memoize marker icons
   const markers = useMemo(() => {

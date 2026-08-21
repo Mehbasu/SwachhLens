@@ -27,7 +27,10 @@ async def create_complaint(
     address: Optional[str] = Form(""),
     category: Optional[str] = Form(None),
     volume: Optional[str] = Form(None),
-    timestamp: Optional[str] = Form(None)
+    timestamp: Optional[str] = Form(None),
+    state: Optional[str] = Form(None),
+    district: Optional[str] = Form(None),
+    city: Optional[str] = Form(None)
 ):
     """
     Creates a new waste complaint with automated AI vision classification,
@@ -103,7 +106,10 @@ async def create_complaint(
         "is_duplicate": is_dup,
         "duplicate_of": dup_of,
         "assigned_team": None,
-        "ai_confidence": ai_confidence
+        "ai_confidence": ai_confidence,
+        "state": state,
+        "district": district,
+        "city": city
     }
 
     db.insert_one(doc)
@@ -112,6 +118,7 @@ async def create_complaint(
 
 @router.get("/complaints", response_model=List[ComplaintResponse])
 async def list_complaints(
+    current_user: dict = Depends(get_current_user),
     status: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     min_priority: Optional[float] = Query(None),
@@ -122,6 +129,15 @@ async def list_complaints(
     Returns list of complaints with filtering by status, category, min_priority, and sorting options.
     """
     items = db.find_all()
+
+    # RBAC Filtering
+    if current_user:
+        if current_user.get("state"):
+            items = [i for i in items if i.get("state") == current_user.get("state")]
+        if current_user.get("district"):
+            items = [i for i in items if i.get("district") == current_user.get("district")]
+        if current_user.get("city"):
+            items = [i for i in items if i.get("city") == current_user.get("city")]
 
     # Filters
     if status and status != "all":
@@ -150,6 +166,16 @@ async def get_hotspots(current_user: dict = Depends(get_current_user)):
     for heatmap rendering.
     """
     items = db.find_all()
+    
+    # RBAC Filtering
+    if current_user:
+        if current_user.get("state"):
+            items = [i for i in items if i.get("state") == current_user.get("state")]
+        if current_user.get("district"):
+            items = [i for i in items if i.get("district") == current_user.get("district")]
+        if current_user.get("city"):
+            items = [i for i in items if i.get("city") == current_user.get("city")]
+
     clusters: Dict[tuple, List[float]] = {}
 
     for item in items:
@@ -179,6 +205,16 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
     Returns aggregated dashboard metrics including status breakdown, category counts, urgent complaint count, and a 30-day timeline.
     """
     items = db.find_all()
+    
+    # RBAC Filtering
+    if current_user:
+        if current_user.get("state"):
+            items = [i for i in items if i.get("state") == current_user.get("state")]
+        if current_user.get("district"):
+            items = [i for i in items if i.get("district") == current_user.get("district")]
+        if current_user.get("city"):
+            items = [i for i in items if i.get("city") == current_user.get("city")]
+
     total = len(items)
 
     by_status = {"submitted": 0, "in_progress": 0, "resolved": 0}

@@ -42,11 +42,18 @@ class PostgresDB:
                     role VARCHAR(50) NOT NULL
                 )
             """)
+            # Add new columns if they don't exist (schema migration)
+            try:
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS state VARCHAR(100)")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS district VARCHAR(100)")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(100)")
+            except Exception as e:
+                print(f"[DB] Could not alter users table: {e}")
             # Seed default admin user (password: password123)
             default_hash = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjIQqiRQmO"
             cur.execute("""
-                INSERT INTO users (email, password_hash, role) 
-                VALUES ('officer@swachhlens.gov.in', %s, 'commissioner')
+                INSERT INTO users (email, password_hash, role, state, district, city) 
+                VALUES ('officer@swachhlens.gov.in', %s, 'commissioner', 'Bihar', 'Patna', 'Patna')
                 ON CONFLICT (email) DO NOTHING
             """, (default_hash,))
 
@@ -139,19 +146,22 @@ class PostgresDB:
                 cur.execute("SELECT COUNT(*) FROM complaints WHERE data @> %s", (Json(query),))
             return cur.fetchone()[0]
 
-    def insert_user(self, email: str, password_hash: str, role: str):
+    def insert_user(self, email: str, password_hash: str, role: str, state: str = None, district: str = None, city: str = None):
         if not self.conn:
             self._mock_users[email] = {
                 "email": email,
                 "password_hash": password_hash,
-                "role": role
+                "role": role,
+                "state": state,
+                "district": district,
+                "city": city
             }
             return
 
         with self.conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO users (email, password_hash, role) VALUES (%s, %s, %s)",
-                (email, password_hash, role)
+                "INSERT INTO users (email, password_hash, role, state, district, city) VALUES (%s, %s, %s, %s, %s, %s)",
+                (email, password_hash, role, state, district, city)
             )
 
     def get_user_by_email(self, email: str) -> dict:
@@ -159,7 +169,7 @@ class PostgresDB:
             return self._mock_users.get(email)
 
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT email, password_hash, role FROM users WHERE email = %s", (email,))
+            cur.execute("SELECT email, password_hash, role, state, district, city FROM users WHERE email = %s", (email,))
             return cur.fetchone()
 
     def clear_all(self):

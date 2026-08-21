@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardHome from './pages/DashboardHome';
@@ -7,26 +7,28 @@ import ComplaintsList from './pages/ComplaintsList';
 import ComplaintDetail from './pages/ComplaintDetail';
 import Analytics from './pages/Analytics';
 import GetStartedPage from './pages/GetStartedPage';
+import LocationSetupPage from './pages/LocationSetupPage';
 
 // Simple Auth Protection Guard
 function ProtectedRoute({ children }) {
+  const location = useLocation();
   const token = localStorage.getItem('swachhlens_auth_token');
   
   if (!token) {
     return <Navigate to="/welcome" replace />;
   }
 
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    if (payload.exp * 1000 < Date.now()) {
-      localStorage.removeItem('swachhlens_auth_token');
-      localStorage.removeItem('swachhlens_role');
-      return <Navigate to="/welcome" replace />;
-    }
-  } catch (e) {
-    localStorage.removeItem('swachhlens_auth_token');
-    localStorage.removeItem('swachhlens_role');
-    return <Navigate to="/welcome" replace />;
+  const state = localStorage.getItem('swachhlens_state');
+  const district = localStorage.getItem('swachhlens_district');
+
+  // If no state or district, force them to setup location
+  if ((!state || !district) && location.pathname !== '/setup-location') {
+      return <Navigate to="/setup-location" replace />;
+  }
+
+  // If they already have jurisdiction, don't let them access setup-location again
+  if (state && district && location.pathname === '/setup-location') {
+      return <Navigate to="/" replace />;
   }
   
   return children;
@@ -38,6 +40,15 @@ export default function App() {
       <Routes>
         <Route path="/welcome" element={<GetStartedPage />} />
         <Route path="/login" element={<LoginPage />} />
+
+        <Route 
+          path="/setup-location" 
+          element={
+            <ProtectedRoute>
+              <LocationSetupPage />
+            </ProtectedRoute>
+          } 
+        />
 
         <Route
           path="/"

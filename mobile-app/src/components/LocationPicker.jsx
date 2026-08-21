@@ -45,8 +45,16 @@ export default function LocationPicker({ location, onLocationChange }) {
       });
 
       let addressString = 'Unknown Location';
+      let state = null;
+      let district = null;
+      let city = null;
+
       if (geocode.length > 0) {
         const place = geocode[0];
+        state = place.region || place.administrativeArea;
+        district = place.subregion || place.city;
+        city = place.city || place.subregion;
+        
         // Build a readable address string (e.g. "Main St, Patna, Bihar")
         addressString = [place.street, place.city, place.region]
           .filter(Boolean)
@@ -57,7 +65,10 @@ export default function LocationPicker({ location, onLocationChange }) {
       if (onLocationChange) {
         onLocationChange({
           gps: { lat: latitude, lng: longitude },
-          address: addressString
+          address: addressString,
+          state,
+          district,
+          city
         });
       }
       setCustomAddress(addressString);

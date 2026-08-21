@@ -24,6 +24,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import LocationSetupScreen from './src/screens/LocationSetupScreen';
 
 // Custom Tab Bar Rendering
 const _renderIcon = (routeName, selectedTab, isDark) => {
@@ -150,6 +151,7 @@ function RootNavigator() {
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="LocationSetup" component={LocationSetupScreen} />
           <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
           <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
           <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />

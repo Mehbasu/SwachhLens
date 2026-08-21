@@ -10,7 +10,7 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    navigation.replace('MainTabs');
+    navigation.replace('LocationSetup');
   };
 
   const images = [

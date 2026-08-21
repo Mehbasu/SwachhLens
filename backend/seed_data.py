@@ -23,7 +23,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna West Ward 14 Sanitation Unit",
-    "ai_confidence": 96.0
+    "ai_confidence": 96.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-002",
@@ -41,7 +44,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna Central Rapid Response Fleet A",
-    "ai_confidence": 94.0
+    "ai_confidence": 94.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-003",
@@ -59,7 +65,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": True,
     "duplicate_of": "COMP-2026-001",
     "assigned_team": "Patna West Ward 14 Sanitation Unit",
-    "ai_confidence": 98.0
+    "ai_confidence": 98.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-004",
@@ -77,7 +86,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Kankarbagh Drainage Division 3",
-    "ai_confidence": 91.0
+    "ai_confidence": 91.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-005",
@@ -95,7 +107,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Danapur Zone Debris Squad",
-    "ai_confidence": 89.0
+    "ai_confidence": 89.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-006",
@@ -113,7 +128,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna Central Corridor Sanitation",
-    "ai_confidence": 93.0
+    "ai_confidence": 93.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-007",
@@ -131,7 +149,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna Central Bio-Waste Team",
-    "ai_confidence": 95.0
+    "ai_confidence": 95.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-008",
@@ -149,7 +170,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna Special Bio-Hazard Squad",
-    "ai_confidence": 97.0
+    "ai_confidence": 97.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-009",
@@ -167,7 +191,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna E-Waste Recycling Wing",
-    "ai_confidence": 90.0
+    "ai_confidence": 90.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-010",
@@ -185,7 +212,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Rajendra Nagar Ward 22 Unit",
-    "ai_confidence": 88.0
+    "ai_confidence": 88.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-011",
@@ -203,7 +233,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Anisabad Sanitation Division",
-    "ai_confidence": 94.0
+    "ai_confidence": 94.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-012",
@@ -221,7 +254,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": True,
     "duplicate_of": "COMP-2026-004",
     "assigned_team": "Kankarbagh Drainage Division 3",
-    "ai_confidence": 95.0
+    "ai_confidence": 95.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-013",
@@ -239,7 +275,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Ashiana Sanitation Crew",
-    "ai_confidence": 91.0
+    "ai_confidence": 91.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-014",
@@ -257,7 +296,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna Central Night Fleet",
-    "ai_confidence": 96.0
+    "ai_confidence": 96.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-015",
@@ -275,7 +317,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Patna Sahib Heritage Division",
-    "ai_confidence": 89.0
+    "ai_confidence": 89.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-016",
@@ -293,7 +338,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Digha Riverfront Patrol",
-    "ai_confidence": 92.0
+    "ai_confidence": 92.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-017",
@@ -311,7 +359,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "Mithapur Terminal Sanitation Squad",
-    "ai_confidence": 97.0
+    "ai_confidence": 97.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   },
   {
     "id": "COMP-2026-018",
@@ -329,7 +380,10 @@ INITIAL_COMPLAINTS = [
     "is_duplicate": False,
     "duplicate_of": None,
     "assigned_team": "West Zone Highway Maintenance",
-    "ai_confidence": 87.0
+    "ai_confidence": 87.0,
+    "state": "Bihar",
+    "district": "Patna",
+    "city": "Patna"
   }
 ]
 

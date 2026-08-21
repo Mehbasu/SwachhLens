@@ -19,6 +19,9 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
     role: str = "inspector"
+    state: str = None
+    district: str = None
+    city: str = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -29,6 +32,14 @@ class Token(BaseModel):
     token_type: str
     role: str
     email: str
+    state: str = None
+    district: str = None
+    city: str = None
+
+class LocationUpdate(BaseModel):
+    state: str = None
+    district: str = None
+    city: str = None
 
 def verify_password(plain_password, hashed_password):
     password_bytes = plain_password.encode('utf-8')[:72]
@@ -64,7 +75,7 @@ async def register(user: UserRegister):
     
     hashed_password = get_password_hash(user.password)
     try:
-        db.insert_user(user.email, hashed_password, user.role)
+        db.insert_user(user.email, hashed_password, user.role, user.state, user.district, user.city)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -76,7 +87,15 @@ async def register(user: UserRegister):
         data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer", "role": user.role, "email": user.email}
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer", 
+        "role": user.role, 
+        "email": user.email,
+        "state": user.state,
+        "district": user.district,
+        "city": user.city
+    }
 
 @router.post("/login", response_model=Token)
 async def login(user: UserLogin):
@@ -94,7 +113,15 @@ async def login(user: UserLogin):
         data={"sub": db_user["email"], "role": db_user["role"]}, expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer", "role": db_user["role"], "email": db_user["email"]}
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer", 
+        "role": db_user["role"], 
+        "email": db_user["email"],
+        "state": db_user.get("state"),
+        "district": db_user.get("district"),
+        "city": db_user.get("city")
+    }
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -122,3 +149,27 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         raise credentials_exception
     return user
+
+@router.put("/profile/location")
+async def update_location(location: LocationUpdate, current_user: dict = Depends(get_current_user)):
+    try:
+        # We need a db method to update a user. Since it doesn't exist, we'll write raw SQL or add a method.
+        # Let's just use raw SQL here to avoid editing database.py again if possible, or we can use db.conn
+        if not db.conn:
+            # Mock DB update
+            if current_user["email"] in db._mock_users:
+                db._mock_users[current_user["email"]]["state"] = location.state
+                db._mock_users[current_user["email"]]["district"] = location.district
+                db._mock_users[current_user["email"]]["city"] = location.city
+        else:
+            with db.conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE users SET state = %s, district = %s, city = %s WHERE email = %s",
+                    (location.state, location.district, location.city, current_user["email"])
+                )
+        return {"message": "Location updated successfully"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating location: {str(e)}"
+        )

@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('password123');
   const [confirmPassword, setConfirmPassword] = useState('password123');
   const [role, setRole] = useState('inspector'); // 'inspector' | 'commissioner'
+
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -46,6 +47,11 @@ export default function LoginPage() {
 
       localStorage.setItem('swachhlens_auth_token', data.access_token);
       localStorage.setItem('swachhlens_role', data.role);
+      
+      if (data.state) localStorage.setItem('swachhlens_state', data.state);
+      if (data.district) localStorage.setItem('swachhlens_district', data.district);
+      if (data.city) localStorage.setItem('swachhlens_city', data.city);
+
       navigate('/');
     } catch (err) {
       setError(err.message);
