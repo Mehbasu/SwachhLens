@@ -10,7 +10,7 @@ import {
   RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useReports } from '../context/ReportsContext';
+import { useReports } from '../contexts/ReportsContext';
 import { useTheme } from '../contexts/ThemeContext';
 import ReportCard from '../components/ReportCard';
 

@@ -55,6 +55,12 @@ async def create_complaint(
 
     # 1.5 Server-Side Reverse Geocoding
     # Ignore client state/district/city and strictly use GPS
+    # Clear client inputs so we fail-close to Unassigned if geocoding fails
+    state = None
+    district = None
+    city = None
+    ward = None
+    
     import os
     API_KEY = os.environ.get("LOCATIONIQ_API_KEY")
     try:

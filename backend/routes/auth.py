@@ -6,6 +6,7 @@ import bcrypt
 from datetime import datetime, timedelta, timezone
 import jwt
 import os
+from psycopg2.extras import RealDictCursor
 
 from db.database import db
 
@@ -77,8 +78,8 @@ async def register(user: UserRegister):
             detail="Email already registered"
         )
     
-    # Security: Force 'inspector' role for self-registration
-    user.role = "inspector"
+    # Security: Force 'citizen' role for self-registration via mobile app
+    user.role = "citizen"
     
     # Normalize ward
     normalized_ward = user.ward.strip().lower() if user.ward else None
@@ -183,7 +184,7 @@ async def get_pending_users(current_admin: dict = Depends(get_current_commission
                 pending.append({"email": email, "role": u["role"]})
         return pending
     else:
-        with db.conn.cursor(dictionary=True) as cur:
+        with db.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT email, role FROM users WHERE role = 'inspector' AND state IS NULL")
             return cur.fetchall()
 

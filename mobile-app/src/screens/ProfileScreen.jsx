@@ -9,7 +9,7 @@ import {
   StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useReports } from '../context/ReportsContext';
+import { useReports } from '../contexts/ReportsContext';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useTheme } from '../contexts/ThemeContext';
 

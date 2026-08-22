@@ -16,7 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import LocationPicker from '../components/LocationPicker';
 import PrimaryButton from '../components/PrimaryButton';
 import { submitComplaint } from '../services/api';
-import { useReports } from '../context/ReportsContext';
+import { useReports } from '../contexts/ReportsContext';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function ReportScreen({ navigation }) {
