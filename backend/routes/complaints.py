@@ -55,7 +55,8 @@ async def create_complaint(
 
     # 1.5 Server-Side Reverse Geocoding
     # Ignore client state/district/city and strictly use GPS
-    API_KEY = "pk.d831da9eae25205a537e2cb4c9db2f3d"
+    import os
+    API_KEY = os.environ.get("LOCATIONIQ_API_KEY")
     try:
         loc_res = requests.get(f"https://us1.locationiq.com/v1/reverse.php?key={API_KEY}&lat={final_lat}&lon={final_lng}&format=json", timeout=5)
         if loc_res.status_code == 200:
