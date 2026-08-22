@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getComplaintById, updateComplaintStatus, assignTeam } from '../services/api';
 import PriorityBadge from '../components/PriorityBadge';
 import StatusTag from '../components/StatusTag';
-import PriorityScoreBar from '../components/PriorityScoreBar';
 import ResolveModal from '../components/ResolveModal';
 import { useToasts } from '../components/ui/toast';
 import { categoriesConfig } from '../data/mockData';
@@ -265,11 +264,16 @@ export default function ComplaintDetail() {
               </p>
             </div>
 
-            {/* Visual Priority Score Breakdown */}
-            <PriorityScoreBar
-              breakdown={complaint.score_breakdown}
-              totalScore={complaint.priority_score}
-            />
+            {/* AI Reasoning */}
+            <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs space-y-1.5">
+              <div className="font-bold text-slate-300 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                <Layers className="w-4 h-4 text-slate-400" />
+                <span>AI Volume Estimation Reasoning</span>
+              </div>
+              <p className="text-slate-200 italic">
+                "{complaint.ai_reasoning || 'AI reasoning not available for this complaint'}"
+              </p>
+            </div>
           </div>
 
           {/* Resolution Details Display (if resolved) */}

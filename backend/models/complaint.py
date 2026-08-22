@@ -45,6 +45,7 @@ class ComplaintBase(BaseModel):
     duplicate_of: Optional[str] = None
     assigned_team: Optional[str] = None
     ai_confidence: float = Field(0.0, ge=0, le=100)
+    ai_reasoning: Optional[str] = None
     state: Optional[str] = None
     district: Optional[str] = None
     city: Optional[str] = None

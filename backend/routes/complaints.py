@@ -97,6 +97,7 @@ async def create_complaint(
     final_category = category if (category and category.strip() and category != "string") else ai_res["category"]
     final_volume = volume if (volume and volume.strip() and volume != "string") else ai_res["volume"]
     ai_confidence = ai_res["ai_confidence"]
+    ai_reasoning = ai_res.get("reasoning")
 
     timestamp_iso = timestamp if timestamp else datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
@@ -144,6 +145,7 @@ async def create_complaint(
         "duplicate_of": dup_of,
         "assigned_team": None,
         "ai_confidence": ai_confidence,
+        "ai_reasoning": ai_reasoning,
         "state": state,
         "district": district,
         "city": city,

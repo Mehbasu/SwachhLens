@@ -41,7 +41,12 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
             Analyze this image of municipal waste. 
             Classify it into exactly one of these categories: {', '.join(CATEGORIES)}.
             Estimate the volume into exactly one of these sizes: {', '.join(VOLUMES)}.
-            Return ONLY a valid JSON object with the keys "category", "volume", and "ai_confidence" (a float between 0 and 100).
+            To estimate the volume, compare the waste to visible scale references in the frame (e.g., a bin, curb, vehicle, person).
+            Return ONLY a valid JSON object with the following keys:
+            - "category": the classified category string
+            - "volume": the estimated volume string
+            - "ai_confidence": a float between 0 and 100
+            - "reasoning": a short one-line string explaining your volume estimation based on scale references
             Do not include markdown blocks or any other text.
             """
             
@@ -61,7 +66,8 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
                 return {
                     "category": data["category"],
                     "volume": data["volume"],
-                    "ai_confidence": float(data.get("ai_confidence", 90.0))
+                    "ai_confidence": float(data.get("ai_confidence", 90.0)),
+                    "reasoning": data.get("reasoning", "Estimated based on visible scale references in the image.")
                 }
         except Exception as e:
             print(f"AI classification failed: {e}. Falling back to mock data.")
@@ -74,6 +80,7 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
     return {
         "category": category,
         "volume": volume,
-        "ai_confidence": confidence
+        "ai_confidence": confidence,
+        "reasoning": "Mock data fallback (AI classification skipped)."
     }
 
