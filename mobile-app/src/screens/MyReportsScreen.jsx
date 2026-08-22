@@ -39,7 +39,7 @@ export default function MyReportsScreen({ navigation }) {
       <View style={currentStyles.container}>
         {/* Header */}
         <View style={currentStyles.header}>
-          <Text style={currentStyles.title}>My Reports 📋</Text>
+          <Text style={currentStyles.title}>My Reports</Text>
           <Text style={currentStyles.subtitle}>
             Track real-time municipal response & cleanup verification
           </Text>

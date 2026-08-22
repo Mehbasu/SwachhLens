@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator, Alert, Linking } from 'react-native';
 import * as Location from 'expo-location';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -26,15 +26,27 @@ export default function LocationPicker({ location, onLocationChange }) {
       // 1. Request Permission
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission to access location was denied');
+        Alert.alert(
+          'Location Permission Required', 
+          'Please enable Location Services for Expo Go in your Android Settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => Linking.openSettings() }
+          ]
+        );
         setIsLocating(false);
         return;
       }
 
-      // 2. Get GPS Coordinates
-      let currentLoc = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      // 2. Get GPS Coordinates - Try cached first for extreme speed
+      let currentLoc = await Location.getLastKnownPositionAsync();
+      
+      // Fallback to fetching fresh location if no cached location exists
+      if (!currentLoc) {
+        currentLoc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+      }
       
       const { latitude, longitude } = currentLoc.coords;
 
@@ -94,7 +106,6 @@ export default function LocationPicker({ location, onLocationChange }) {
     <View style={currentStyles.container}>
       <View style={currentStyles.header}>
         <View style={currentStyles.titleRow}>
-          <Text style={currentStyles.icon}>📍</Text>
           <Text style={currentStyles.title}>GPS Geotag Location</Text>
         </View>
         <View style={currentStyles.gpsBadge}>
@@ -135,14 +146,14 @@ export default function LocationPicker({ location, onLocationChange }) {
               style={currentStyles.adjustBtn}
               onPress={() => setIsEditing(true)}
             >
-              <Text style={currentStyles.adjustBtnText}>✏️ Edit Address</Text>
+              <Text style={currentStyles.adjustBtnText}>Edit Address</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
               style={currentStyles.refreshBtn}
               onPress={fetchRealLocation}
             >
-              <Text style={currentStyles.refreshBtnText}>🔄 Refresh GPS</Text>
+              <Text style={currentStyles.refreshBtnText}>Refresh GPS</Text>
             </TouchableOpacity>
           </View>
         </View>

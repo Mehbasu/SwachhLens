@@ -12,12 +12,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReports } from '../contexts/ReportsContext';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useTheme } from '../contexts/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../config/firebase';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   const { getStats } = useReports();
   const { colorScheme } = useTheme();
   const isDark = colorScheme === 'dark';
   const stats = getStats();
+
+  const user = auth.currentUser;
+  const userName = user?.displayName || 'Citizen';
+  const userInitials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'C';
 
   const currentStyles = styles(isDark);
 
@@ -28,19 +34,19 @@ export default function ProfileScreen() {
         contentContainerStyle={currentStyles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={currentStyles.title}>Citizen Profile 👤</Text>
+        <Text style={currentStyles.title}>{userName}</Text>
 
         {/* Profile Card */}
         <View style={currentStyles.profileCard}>
           <View style={currentStyles.avatarCircle}>
-            <Text style={currentStyles.avatarText}>RK</Text>
+            <Text style={currentStyles.avatarText}>{userInitials}</Text>
           </View>
 
-          <Text style={currentStyles.name}>Ramesh Kumar</Text>
-          <Text style={currentStyles.ward}>Resident • Ward 14 (Boring Road), Patna</Text>
+          <Text style={currentStyles.name}>{userName}</Text>
+          <Text style={currentStyles.ward}>Resident • SwachhLens Citizen</Text>
 
           <View style={currentStyles.badgeChip}>
-            <Text style={currentStyles.badgeText}>🌿 Level 4 Civic Sanitation Champion</Text>
+            <Text style={currentStyles.badgeText}>Level 4 Civic Sanitation Champion</Text>
           </View>
         </View>
 
@@ -48,17 +54,17 @@ export default function ProfileScreen() {
         <Text style={currentStyles.sectionTitle}>Impact & Achievements</Text>
         <View style={currentStyles.statsCard}>
           <View style={currentStyles.statRow}>
-            <Text style={currentStyles.statLabel}>⭐ Total Eco Points Earned</Text>
+            <Text style={currentStyles.statLabel}>Total Eco Points Earned</Text>
             <Text style={currentStyles.statValHighlight}>{stats.ecoPoints} Pts</Text>
           </View>
           <View style={currentStyles.divider} />
           <View style={currentStyles.statRow}>
-            <Text style={currentStyles.statLabel}>📸 Total Waste Reports Filed</Text>
+            <Text style={currentStyles.statLabel}>Total Waste Reports Filed</Text>
             <Text style={currentStyles.statVal}>{stats.total}</Text>
           </View>
           <View style={currentStyles.divider} />
           <View style={currentStyles.statRow}>
-            <Text style={currentStyles.statLabel}>✅ Verified Cleanups Completed</Text>
+            <Text style={currentStyles.statLabel}>Verified Cleanups Completed</Text>
             <Text style={currentStyles.statVal}>{stats.resolved}</Text>
           </View>
         </View>
@@ -69,7 +75,7 @@ export default function ProfileScreen() {
           <TouchableOpacity style={currentStyles.actionRow}>
             <Text style={currentStyles.actionIcon}>📞</Text>
             <View style={currentStyles.actionTextCol}>
-              <Text style={currentStyles.actionTitle}>Patna Municipal Helpline</Text>
+              <Text style={currentStyles.actionTitle}>Helpline</Text>
               <Text style={currentStyles.actionSub}>Toll-Free: 155304 / 1800-345-6194</Text>
             </View>
           </TouchableOpacity>
@@ -94,6 +100,23 @@ export default function ProfileScreen() {
             </View>
             <ThemeSwitcher />
           </View>
+
+          <View style={currentStyles.divider} />
+
+          <TouchableOpacity 
+            style={currentStyles.actionRow}
+            onPress={() => {
+              auth.signOut().then(() => {
+                AsyncStorage.clear().then(() => navigation.replace('Login'));
+              }).catch(e => console.error("Signout error:", e));
+            }}
+          >
+            <Text style={currentStyles.actionIcon}>🚪</Text>
+            <View style={currentStyles.actionTextCol}>
+              <Text style={[currentStyles.actionTitle, { color: '#ef4444' }]}>Log Out</Text>
+              <Text style={currentStyles.actionSub}>Sign out of your account</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

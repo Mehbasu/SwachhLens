@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { initialMockReports, initialNotifications } from '../data/mockData';
 import { getMyComplaints } from '../services/api';
+import { auth } from '../config/firebase';
 
 const ReportsContext = createContext();
 
@@ -23,7 +24,15 @@ export function ReportsProvider({ children }) {
   };
 
   useEffect(() => {
-    fetchReportsFromBackend();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchReportsFromBackend();
+      } else {
+        // Clear reports if logged out
+        setReports(initialMockReports);
+      }
+    });
+    return unsubscribe;
   }, []);
 
   const addReport = (newReport) => {

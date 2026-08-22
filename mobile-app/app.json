@@ -24,6 +24,7 @@
     },
     "android": {
       "package": "com.technova.swachhlens",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f172a"

@@ -156,12 +156,12 @@ export default function ReportScreen({ navigation }) {
                   setCapturedTimestamp(null);
                 }}
               >
-                <Text style={currentStyles.retakeBtnText}>🔄 Change Media</Text>
+                <Text style={currentStyles.retakeBtnText}>Change Media</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={currentStyles.captureBox}>
-              <Text style={currentStyles.cameraIcon}>📸</Text>
+
               <Text style={currentStyles.capturePrompt}>No media selected yet</Text>
               
               <View style={currentStyles.photoBtnRow}>
@@ -169,14 +169,14 @@ export default function ReportScreen({ navigation }) {
                   style={currentStyles.photoBtnPrimary}
                   onPress={handleLaunchCamera}
                 >
-                  <Text style={currentStyles.photoBtnText}>📷 Take Photo/Video</Text>
+                  <Text style={currentStyles.photoBtnText}>Take Photo/Video</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={currentStyles.photoBtnSecondary}
                   onPress={handleLaunchGallery}
                 >
-                  <Text style={currentStyles.photoBtnSecondaryText}>🖼️ Choose Gallery</Text>
+                  <Text style={currentStyles.photoBtnSecondaryText}>Choose Gallery</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -203,7 +203,7 @@ export default function ReportScreen({ navigation }) {
 
         {/* Submit Primary CTA */}
         <PrimaryButton
-          title="✨ Submit Report & Run AI Verification"
+          title="Submit Report & Run AI Verification"
           onPress={handleSubmit}
           style={currentStyles.submitBtn}
         />

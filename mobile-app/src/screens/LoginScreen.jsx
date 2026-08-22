@@ -39,17 +39,18 @@ export default function LoginScreen({ navigation }) {
       const data = await response.json();
 
       if (response.ok) {
+        if (data.role !== 'citizen') {
+          alert("This email is registered as an official account. Please use a different email for the citizen mobile app.");
+          await auth.signOut();
+          return;
+        }
+
         if (data.state) await AsyncStorage.setItem('swachhlens_state', data.state);
         if (data.district) await AsyncStorage.setItem('swachhlens_district', data.district);
         if (data.city) await AsyncStorage.setItem('swachhlens_city', data.city);
         if (data.ward) await AsyncStorage.setItem('swachhlens_ward', data.ward);
 
-        // If jurisdiction is fully setup, go to MainTabs, else LocationSetup
-        if (data.role === 'citizen' || (data.state && data.district && data.city && data.ward)) {
-          navigation.replace('MainTabs');
-        } else {
-          navigation.replace('LocationSetup');
-        }
+        navigation.replace('MainTabs');
       } else {
         alert(data.detail || 'Login failed');
       }

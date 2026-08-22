@@ -34,22 +34,11 @@ export default function HomeScreen({ navigation }) {
         {/* Civic Header */}
         <View style={currentStyles.header}>
           <View>
-            <Text style={currentStyles.cityName}>PATNA MUNICIPAL CORPORATION</Text>
             <Text style={currentStyles.title}>SwachhLens 🌿</Text>
           </View>
           <View style={{flexDirection: 'column', alignItems: 'flex-end', gap: 6}}>
-            <TouchableOpacity 
-              onPress={() => {
-                auth.signOut().then(() => {
-                  AsyncStorage.clear().then(() => navigation.replace('Login'));
-                }).catch(e => console.error("Signout error:", e));
-              }}
-              style={{ backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 }}
-            >
-              <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>LOGOUT (DEBUG)</Text>
-            </TouchableOpacity>
+
             <View style={currentStyles.ecoBadge}>
-              <Text style={currentStyles.ecoIcon}>⭐</Text>
               <Text style={currentStyles.ecoPts}>{stats.ecoPoints} Pts</Text>
             </View>
           </View>
@@ -63,7 +52,7 @@ export default function HomeScreen({ navigation }) {
           </Text>
 
           <PrimaryButton
-            title="📷  Report an Issue Now"
+            title="Report an Issue Now"
             onPress={() => navigation.navigate('ReportTab')}
             style={currentStyles.heroCta}
           />

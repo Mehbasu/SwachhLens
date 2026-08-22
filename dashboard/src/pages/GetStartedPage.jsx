@@ -78,10 +78,6 @@ export default function GetStartedPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 w-full pb-6 flex items-center justify-center text-xs text-slate-600">
-        <span>SwachhLens Initiative &copy; 2026</span>
-      </footer>
     </div>
   );
 }

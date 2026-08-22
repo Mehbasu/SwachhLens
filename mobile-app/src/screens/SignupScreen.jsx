@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
@@ -22,6 +22,8 @@ export default function SignupScreen({ navigation }) {
     try {
       // 1. Authenticate with Firebase
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: name });
+      
       const token = await userCredential.user.getIdToken();
 
       // 2. Sync with Backend
@@ -37,8 +39,8 @@ export default function SignupScreen({ navigation }) {
       const data = await response.json();
 
       if (response.ok) {
-        // Since it's a new signup, they won't have location yet
-        navigation.replace('LocationSetup');
+        // Citizens do not need commissioner approval, go straight to the app
+        navigation.replace('MainTabs');
       } else {
         alert(data.detail || 'Signup failed');
       }

@@ -92,7 +92,19 @@ async def create_complaint(
     except Exception as e:
         print("Server-side geocoding failed:", e)
 
-    # 2. Save uploaded image
+    # 2. Extract optional reporter email from Firebase token if present
+    reporter_email = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        try:
+            from firebase_admin import auth as firebase_auth
+            payload = firebase_auth.verify_id_token(token)
+            reporter_email = payload.get("email") or payload.get("phone_number")
+        except Exception:
+            pass
+
+    # 3. Save uploaded image
     base_url = str(request.base_url)
     image_url = save_upload_file(image, base_url=base_url)
 
@@ -167,7 +179,8 @@ async def create_complaint(
         "district": district,
         "city": city,
         "ward": normalized_ward,
-        "image_hash": image_hash_hex
+        "image_hash": image_hash_hex,
+        "reporter_email": reporter_email
     }
 
     db.insert_one(doc)
@@ -190,14 +203,19 @@ async def list_complaints(
 
     # RBAC Filtering
     if current_user:
-        if current_user.get("state"):
-            items = [i for i in items if i.get("state") == current_user.get("state")]
-        if current_user.get("district"):
-            items = [i for i in items if i.get("district") == current_user.get("district")]
-        if current_user.get("city"):
-            items = [i for i in items if i.get("city") == current_user.get("city")]
-        if current_user.get("ward"):
-            items = [i for i in items if i.get("ward") == current_user.get("ward")]
+        if current_user.get("role") == "citizen":
+            # Citizens only see their own complaints
+            items = [i for i in items if i.get("reporter_email") == current_user.get("email")]
+        else:
+            # Officials see complaints in their jurisdiction
+            if current_user.get("state"):
+                items = [i for i in items if i.get("state") == current_user.get("state")]
+            if current_user.get("district"):
+                items = [i for i in items if i.get("district") == current_user.get("district")]
+            if current_user.get("city"):
+                items = [i for i in items if i.get("city") == current_user.get("city")]
+            if current_user.get("ward"):
+                items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     # Filters
     if status and status != "all":

@@ -30,7 +30,7 @@ export default function NotificationsScreen({ navigation }) {
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#0f172a" : "#f1f5f9"} />
       <View style={currentStyles.container}>
         <View style={currentStyles.header}>
-          <Text style={currentStyles.title}>Notifications 🔔</Text>
+          <Text style={currentStyles.title}>Alerts & Notifications</Text>
           <Text style={currentStyles.subtitle}>
             Real-time updates on your submitted reports & eco rewards
           </Text>
