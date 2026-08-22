@@ -44,7 +44,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex selection:bg-teal-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex selection:bg-teal-500/30">
       {/* Global Background Elements */}
       <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.03] pointer-events-none" />
       

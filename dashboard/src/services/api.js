@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { auth } from '../config/firebase';
 
 // Configure Axios instance for backend connection
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
@@ -12,11 +13,18 @@ const apiClient = axios.create({
   }
 });
 
-// Interceptor to attach JWT token to every request
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('swachhlens_auth_token');
-  if (token) {
+// Interceptor to attach Firebase JWT token to every request
+apiClient.interceptors.request.use(async (config) => {
+  const user = auth.currentUser;
+  if (user) {
+    const token = await user.getIdToken();
     config.headers.Authorization = `Bearer ${token}`;
+    localStorage.setItem('swachhlens_auth_token', token); // update local storage for router
+  } else {
+    const localToken = localStorage.getItem('swachhlens_auth_token');
+    if (localToken) {
+      config.headers.Authorization = `Bearer ${localToken}`;
+    }
   }
   return config;
 }, (error) => {

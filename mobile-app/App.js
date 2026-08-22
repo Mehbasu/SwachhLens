@@ -9,7 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CurvedBottomBar } from 'react-native-curved-bottom-bar';
 import { StatusBar } from 'expo-status-bar';
 
-import { ReportsProvider } from './src/context/ReportsContext';
+import { ReportsProvider } from './src/contexts/ReportsContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import { Home, ClipboardList, Camera, Bell, User } from 'lucide-react-native';
 

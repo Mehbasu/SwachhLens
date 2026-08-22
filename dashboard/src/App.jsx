@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ThemeProvider } from './components/theme-provider';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardHome from './pages/DashboardHome';
@@ -37,8 +38,9 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <ThemeProvider defaultTheme="system" storageKey="swachhlens-theme">
+      <BrowserRouter>
+        <Routes>
         <Route path="/welcome" element={<GetStartedPage />} />
         <Route path="/login" element={<LoginPage />} />
 
@@ -67,7 +69,8 @@ export default function App() {
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

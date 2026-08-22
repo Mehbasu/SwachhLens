@@ -20,21 +20,6 @@ export default function ComplaintsList() {
 
   const { globalSearch } = useOutletContext() || {};
 
-  const stateStr = localStorage.getItem('swachhlens_state');
-  const districtStr = localStorage.getItem('swachhlens_district');
-  const cityStr = localStorage.getItem('swachhlens_city');
-  const wardStr = localStorage.getItem('swachhlens_ward');
-
-  let jurisdictionText = 'National Overview';
-  if (wardStr && wardStr !== 'null') {
-    jurisdictionText = `${wardStr.charAt(0).toUpperCase() + wardStr.slice(1)}, ${cityStr}`;
-  } else if (cityStr && cityStr !== 'null') {
-    jurisdictionText = `${cityStr} City Sector`;
-  } else if (districtStr && districtStr !== 'null') {
-    jurisdictionText = `${districtStr} District Sector`;
-  } else if (stateStr && stateStr !== 'null') {
-    jurisdictionText = `${stateStr} State Sector`;
-  }
 
   const fetchComplaints = async () => {
     setLoading(true);
@@ -74,27 +59,24 @@ export default function ComplaintsList() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl md:text-2xl font-extrabold text-white tracking-tight">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Waste Complaints Directory
             </h1>
-            <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
-              {jurisdictionText}
-            </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Filter, search, and prioritize incoming civic waste grievances across your jurisdiction.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-mono font-bold bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+          <span className="text-xs text-slate-700 dark:text-slate-400 font-mono font-bold bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
             Showing {complaints.length} Records
           </span>
           <button
             onClick={fetchComplaints}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-colors"
+            className="p-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -115,7 +97,7 @@ export default function ComplaintsList() {
       )}
 
       {/* Filter Control Bar */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+      <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
           {/* Search box */}
           <div className="relative">
@@ -125,7 +107,7 @@ export default function ComplaintsList() {
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search location/ID..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-colors"
             />
           </div>
 
@@ -134,7 +116,7 @@ export default function ComplaintsList() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:border-teal-500"
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500 transition-colors"
             >
               <option value="all">All Waste Categories</option>
               {Object.entries(categoriesConfig).map(([key, cfg]) => (
@@ -150,7 +132,7 @@ export default function ComplaintsList() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:border-teal-500"
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500 transition-colors"
             >
               <option value="all">All Statuses</option>
               <option value="submitted">Submitted / Pending</option>
@@ -164,7 +146,7 @@ export default function ComplaintsList() {
             <select
               value={priorityRange}
               onChange={(e) => setPriorityRange(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:border-teal-500"
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500 transition-colors"
             >
               <option value="all">All Priority Levels</option>
               <option value="urgent">Urgent (75 - 100)</option>
@@ -179,7 +161,7 @@ export default function ComplaintsList() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:border-teal-500"
+              className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500 transition-colors"
             >
               <option value="priority">Sort by Priority</option>
               <option value="date">Sort by Date</option>
@@ -188,7 +170,7 @@ export default function ComplaintsList() {
 
             <button
               onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-              className="px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-300 hover:text-white font-mono font-bold"
+              className="px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-mono font-bold transition-colors"
               title={`Order: ${sortOrder.toUpperCase()}`}
             >
               {sortOrder === 'desc' ? '↓' : '↑'}
@@ -197,24 +179,24 @@ export default function ComplaintsList() {
         </div>
 
         {/* Quick Filter Tags & Reset */}
-        <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2 overflow-x-auto">
-            <span className="text-slate-400 font-medium flex items-center gap-1">
+            <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
               <SlidersHorizontal className="w-3.5 h-3.5" /> Filters:
             </span>
 
             {category !== 'all' && (
-              <span className="bg-teal-500/10 text-teal-400 px-2 py-0.5 rounded border border-teal-500/20 font-medium">
+              <span className="bg-teal-500/10 text-teal-600 dark:text-teal-400 px-2 py-0.5 rounded border border-teal-500/20 font-medium">
                 Cat: {categoriesConfig[category]?.label}
               </span>
             )}
             {status !== 'all' && (
-              <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 font-medium">
+              <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 font-medium">
                 Status: {status}
               </span>
             )}
             {priorityRange !== 'all' && (
-              <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-medium">
+              <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-medium">
                 Priority: {priorityRange}
               </span>
             )}

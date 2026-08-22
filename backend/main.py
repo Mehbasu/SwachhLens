@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from routes.complaints import router as complaints_router
+import firebase_admin
+from firebase_admin import credentials
 from routes.auth import router as auth_router
 from services.upload_service import UPLOAD_DIR
 
@@ -12,6 +14,15 @@ app = FastAPI(
     description="Backend API for Citizen Waste Reporting & Municipal Management Dashboard",
     version="1.0.0"
 )
+
+# Initialize Firebase Admin SDK
+import json
+try:
+    cred = credentials.Certificate(os.path.join(os.path.dirname(__file__), 'firebase-adminsdk.json'))
+    firebase_admin.initialize_app(cred)
+    print("[Firebase] Admin SDK initialized successfully")
+except Exception as e:
+    print(f"[Firebase] Failed to initialize Admin SDK: {e}")
 
 # Enable CORS for all origins to serve both Citizen Mobile App and Municipal Dashboard
 app.add_middleware(

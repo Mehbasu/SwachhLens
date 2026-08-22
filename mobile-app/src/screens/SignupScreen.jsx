@@ -2,14 +2,50 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
+
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignup = () => {
-    navigation.replace('MainTabs');
+  const handleSignup = async () => {
+    if (!name || !email || !password) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    try {
+      // 1. Authenticate with Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+
+      // 2. Sync with Backend
+      const response = await fetch(`${BASE_URL}/auth/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: 'citizen' }), 
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Since it's a new signup, they won't have location yet
+        navigation.replace('LocationSetup');
+      } else {
+        alert(data.detail || 'Signup failed');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      alert(error.message || 'Signup failed.');
+    }
   };
 
   return (
@@ -27,7 +63,7 @@ export default function SignupScreen({ navigation }) {
 
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join SwachhLens as an Officer</Text>
+          <Text style={styles.subtitle}>Join SwachhLens to keep your city clean</Text>
         </View>
 
         <View style={styles.formContainer}>

@@ -1,33 +1,57 @@
-# Dependencies
+# ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
 venv/
 backend/venv/
 .venv/
 
-# Environment Variables
+# ── Environment Variables (NEVER commit secrets) ───────────────────────────────
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Expo & Mobile App build caches
+# ── Firebase Service Account Key (CRITICAL — contains private key) ─────────────
+backend/firebase-adminsdk.json
+**/firebase-adminsdk*.json
+**/service-account*.json
+
+# ── Expo & Mobile App build caches ────────────────────────────────────────────
 .expo/
 dist/
 web-build/
 *.apk
 *.aab
 
-# Python Caches & Artifacts
+# ── Python Caches & Artifacts ──────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .pytest_cache/
 
-# IDE & OS files
+# ── Build Outputs ──────────────────────────────────────────────────────────────
+build/
+.next/
+out/
+
+# ── IDE / OS Files ─────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+# ── AI Agent / IDE-specific config (not project code) ─────────────────────────
+dashboard/.agents/
+dashboard/.claude/
+dashboard/skills-lock.json
+.agents/
+.claude/
+skills-lock.json
+
+# ── Temp / Debug scripts ───────────────────────────────────────────────────────
+dashboard/check_browser_errors.js
+scratch/
+
+# ── Misc ───────────────────────────────────────────────────────────────────────
 unused_components/

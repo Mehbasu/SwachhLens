@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useMemo, useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import PriorityBadge from './PriorityBadge';
@@ -70,11 +70,52 @@ const createCustomIcon = (priorityScore) => {
   });
 };
 
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.setView(center, 13);
+    }
+  }, [center, map]);
+  return null;
+}
+
 export default function MapView({ complaints = [], height = '500px', selectedId = null }) {
   const navigate = useNavigate();
+  const [mapCenter, setMapCenter] = useState([25.5941, 85.1376]); // Default Patna
 
-  // Center on first available complaint, fallback to Patna
-  const defaultCenter = complaints.length > 0 ? [complaints[0].gps.lat, complaints[0].gps.lng] : [25.5941, 85.1376];
+  useEffect(() => {
+    const fetchCityCoords = async () => {
+      const city = localStorage.getItem('swachhlens_city');
+      const district = localStorage.getItem('swachhlens_district');
+      const state = localStorage.getItem('swachhlens_state');
+      
+      const query = city && city !== 'null' ? `${city}, ${state || 'India'}` 
+                  : district && district !== 'null' ? `${district}, ${state || 'India'}`
+                  : state && state !== 'null' ? `${state}, India`
+                  : null;
+
+      if (query) {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+            return; // Successfully got coords
+          }
+        } catch (e) {
+          console.error("Failed to fetch map coordinates for jurisdiction", e);
+        }
+      }
+
+      // Fallback to first complaint if geocoding fails or no jurisdiction is set
+      if (complaints.length > 0) {
+        setMapCenter([complaints[0].gps.lat, complaints[0].gps.lng]);
+      }
+    };
+
+    fetchCityCoords();
+  }, [complaints]);
 
   // Memoize marker icons
   const markers = useMemo(() => {
@@ -87,11 +128,12 @@ export default function MapView({ complaints = [], height = '500px', selectedId 
   return (
     <div style={{ height }} className="w-full relative rounded-xl overflow-hidden border border-slate-700/80 shadow-xl">
       <MapContainer
-        center={defaultCenter}
-        zoom={12}
+        center={mapCenter}
+        zoom={13}
         scrollWheelZoom={true}
         className="w-full h-full"
       >
+        <MapUpdater center={mapCenter} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform,  Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, ArrowLeft } from 'lucide-react-native';
+import { Mail, ArrowLeft, Phone } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 // Use a fallback for emulator if API_URL is not set
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
 
 export default function LoginScreen({ navigation }) {
   const [showEmailInput, setShowEmailInput] = useState(false);
@@ -20,18 +22,23 @@ export default function LoginScreen({ navigation }) {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/auth/login`, {
+      // 1. Authenticate with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+
+      // 2. Sync with Backend
+      const response = await fetch(`${BASE_URL}/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ role: 'citizen' }), 
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        await AsyncStorage.setItem('swachhlens_token', data.access_token);
         if (data.state) await AsyncStorage.setItem('swachhlens_state', data.state);
         if (data.district) await AsyncStorage.setItem('swachhlens_district', data.district);
         if (data.city) await AsyncStorage.setItem('swachhlens_city', data.city);
@@ -48,7 +55,7 @@ export default function LoginScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Network error. Ensure backend is running.');
+      alert(error.message || 'Login failed.');
     }
   };
 
@@ -116,9 +123,10 @@ export default function LoginScreen({ navigation }) {
                 <TouchableOpacity 
                   style={styles.secondaryButton}
                   activeOpacity={0.8}
-                  onPress={handleLogin}
+                  onPress={() => alert('Mobile OTP Login coming soon!')}
                 >
-                  <Text style={styles.secondaryButtonText}>G   Sign in with Google</Text>
+                  <Phone color="#ffffff" size={20} style={{ marginRight: 8 }} />
+                  <Text style={styles.secondaryButtonText}>Sign in with Mobile</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -133,7 +141,7 @@ export default function LoginScreen({ navigation }) {
 
                 <TextInput
                   style={styles.input}
-                  placeholder="Email or Officer ID"
+                  placeholder="Email Address"
                   placeholderTextColor="rgba(255,255,255,0.6)"
                   value={email}
                   onChangeText={setEmail}

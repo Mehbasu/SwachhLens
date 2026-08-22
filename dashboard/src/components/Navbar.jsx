@@ -1,98 +1,133 @@
-import React, { useState } from 'react';
-import { Menu, Search, Bell, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { resetMockData } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+﻿import React, { useState, useRef, useEffect } from "react";
+import { Bell, AlertTriangle, Info } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "./ThemeToggle";
+import { useNotifications } from "../hooks/useNotifications";
 
 export default function Navbar({ searchValue, onSearchChange }) {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
+  const panelRef = useRef(null);
   const navigate = useNavigate();
+  const { notifications, unseenCount, markAllSeen } = useNotifications();
 
-  const handleResetData = async () => {
-    setIsResetting(true);
-    await resetMockData();
-    setIsResetting(false);
-    window.location.reload();
+  // Close panel on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleBellClick = () => {
+    const opening = !showNotifications;
+    setShowNotifications(opening);
+    if (opening && unseenCount > 0) {
+      markAllSeen();
+    }
   };
 
-  const notifications = [
-    { id: 1, title: 'Urgent Bio-Hazard Report', time: '10 mins ago', desc: 'Hospital waste at Kurji Holy Family', type: 'urgent' },
-    { id: 2, title: 'JCB Excavator Deployed', time: '25 mins ago', desc: 'Gandhi Maidan garbage dump clearance', type: 'info' },
-    { id: 3, title: 'Complaint Resolved', time: '1 hr ago', desc: 'Rajendra Nagar overbridge cleaned', type: 'success' }
-  ];
-
   return (
-    <header className="sticky top-0 z-30 h-16 bg-slate-950/40 backdrop-blur-2xl border-b border-white/5 px-4 md:px-6 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
-      {/* Left side: Branding */}
-      <div className="flex items-center gap-3 flex-1 max-w-xl">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
-          SwachhLens
-        </h1>
-      </div>
-
-      {/* Right side: Live badge, reset data button, notifications */}
-      <div className="flex items-center gap-2.5">
-        {/* Live indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Live Patna Grid</span>
+    <div className="sticky top-0 z-30 pt-4 px-4 flex justify-center pointer-events-none">
+      <header className="pointer-events-auto w-[98%] max-w-full h-16 bg-white/80 dark:bg-[#1a1b26]/90 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 rounded-2xl px-5 flex items-center justify-between shadow-lg dark:shadow-2xl transition-all">
+        {/* Left: Branding */}
+        <div className="flex items-center gap-3 flex-1 max-w-xl">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-teal-500 to-emerald-500 dark:from-teal-400 dark:to-emerald-400 bg-clip-text text-transparent tracking-wide">
+            SwachhLens
+          </h1>
         </div>
 
-        {/* Demo Reset Helper */}
-        <button
-          onClick={handleResetData}
-          disabled={isResetting}
-          title="Reset state to initial 18 mock complaints"
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors"
-        >
-          <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-          <span className="hidden lg:inline">Reset Mock Data</span>
-        </button>
+        {/* Right */}
+        <div className="flex items-center gap-2.5">
+          {/* Live indicator */}
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+            <span>Live</span>
+          </div>
 
-        {/* Notifications Popover */}
-        <div className="relative">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-slate-900 animate-ping" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-slate-900" />
-          </button>
+          <ThemeToggle />
 
-          {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-fade-in ring-1 ring-white/5">
-              <div className="p-3 bg-slate-900/50 border-b border-white/5 flex items-center justify-between">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Control Alerts</span>
-                <span className="bg-teal-500/20 text-teal-400 text-[10px] px-1.5 py-0.5 rounded font-bold">3 New</span>
-              </div>
+          {/* Notifications */}
+          <div className="relative" ref={panelRef}>
+            <button
+              onClick={handleBellClick}
+              className="relative p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors focus:outline-none"
+              aria-label="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              {unseenCount > 0 && (
+                <>
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-[#1a1b26] animate-ping" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-[#1a1b26]" />
+                </>
+              )}
+            </button>
 
-              <div className="divide-y divide-slate-800 max-h-72 overflow-y-auto">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    onClick={() => {
-                      setShowNotifications(false);
-                      navigate('/complaints');
-                    }}
-                    className="p-3 hover:bg-slate-800/60 cursor-pointer transition-colors text-xs space-y-1"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-200 flex items-center gap-1.5">
-                        {n.type === 'urgent' && <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />}
-                        {n.type === 'success' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
-                        {n.title}
-                      </span>
-                      <span className="text-[10px] text-slate-500">{n.time}</span>
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-white/95 dark:bg-slate-950/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 ring-1 ring-slate-200 dark:ring-white/5">
+                {/* Header */}
+                <div className="p-3 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                    Complaint Alerts
+                  </span>
+                  {notifications.length > 0 && (
+                    <span className="bg-teal-500/20 text-teal-600 dark:text-teal-400 text-[10px] px-1.5 py-0.5 rounded font-bold">
+                      {notifications.length} Recent
+                    </span>
+                  )}
+                </div>
+
+                {/* List */}
+                <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-72 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-slate-400 text-xs">
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      No pending complaints in your area
                     </div>
-                    <p className="text-slate-400 text-[11px]">{n.desc}</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        onClick={() => { setShowNotifications(false); navigate("/complaints"); }}
+                        className={"p-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors text-xs space-y-1" + (!n.seen ? " bg-teal-50/60 dark:bg-teal-900/10 border-l-2 border-teal-500" : "")}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate">
+                            {n.type === "urgent"
+                              ? <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                              : <Info className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                            }
+                            <span className="truncate">{n.title}</span>
+                          </span>
+                          <span className="text-[10px] text-slate-400 shrink-0">{n.time}</span>
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 text-[11px] truncate pl-5">{n.desc}</p>
+                        {!n.seen && (
+                          <span className="inline-block ml-5 text-[9px] font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
+                            New
+                          </span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Footer */}
+                {notifications.length > 0 && (
+                  <div
+                    className="p-2 text-center text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 font-semibold transition-colors"
+                    onClick={() => { setShowNotifications(false); navigate("/complaints"); }}
+                  >
+                    View All Complaints →
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </div>
   );
 }

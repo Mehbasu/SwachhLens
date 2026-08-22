@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import LightRays from '../components/ui/LightRays';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 export default function LoginPage() {
   const location = useLocation();
   const [isRegister, setIsRegister] = useState(location.state?.register || false);
-  const [email, setEmail] = useState('officer@swachhlens.gov.in');
-  const [password, setPassword] = useState('password123');
-  const [confirmPassword, setConfirmPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('inspector'); // 'inspector' | 'commissioner'
 
   const [error, setError] = useState(null);
@@ -27,16 +30,23 @@ export default function LoginPage() {
     }
 
     try {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const payload = isRegister 
-        ? { email, password, role }
-        : { email, password };
+      let userCredential;
+      if (isRegister) {
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
+      
+      const token = await userCredential.user.getIdToken();
 
       const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
+      const response = await fetch(`${BASE_URL}/auth/sync`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: role })
       });
 
       const data = await response.json();
@@ -45,7 +55,8 @@ export default function LoginPage() {
         throw new Error(data.detail || 'Authentication failed');
       }
 
-      localStorage.setItem('swachhlens_auth_token', data.access_token);
+      // We still store this for the PrivateRoute checks if we don't refactor PrivateRoute
+      localStorage.setItem('swachhlens_auth_token', token);
       localStorage.setItem('swachhlens_role', data.role);
       
       if (data.state) localStorage.setItem('swachhlens_state', data.state);
@@ -165,13 +176,20 @@ export default function LoginPage() {
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all placeholder:text-slate-600 tracking-widest font-mono"
+                className="w-full pl-11 pr-11 py-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all placeholder:text-slate-600 tracking-widest font-mono"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
@@ -184,13 +202,20 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all placeholder:text-slate-600 tracking-widest font-mono"
+                  className="w-full pl-11 pr-11 py-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all placeholder:text-slate-600 tracking-widest font-mono"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           )}

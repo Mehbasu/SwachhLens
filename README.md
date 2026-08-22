@@ -1,85 +1,155 @@
 # SwachhLens 🌍 📸
 
-**An AI-powered, scalable mobile solution for crowdsourced waste management and evidence-based cleanup action.**
+**An AI-powered, scalable civic waste management platform — mobile reporting for citizens, intelligent triage dashboard for authorities.**
 
-Built for **THE TECHNOVA CHALLENGE**, SwachhLens empowers citizens to report unwanted, overflowed, or misplaced waste using just their smartphones, while providing municipal authorities with an intelligent dashboard to prioritize and dispatch cleanup teams efficiently.
-
----
-
-## 🚀 The Solution
-
-SwachhLens requires **no dedicated hardware investments** (like expensive IoT smart bins). Instead, it relies on the devices citizens already own and a powerful cloud infrastructure, directly addressing the core requirements of the Technova Challenge:
-
-### 📍 1. Where are waste hotspots forming?
-*   **Geospatial Aggregation:** Our backend groups complaints within ~100m grids using latitude and longitude to pinpoint exact hotspots.
-*   **Analytics Dashboard:** Tracks performance and waste density at the granular Ward level.
-
-### 🗑️ 2. What type of waste is present?
-*   **AI Vision Classification:** Uses Google Gemini (with Groq API as a fallback) to analyze citizen-submitted photos and instantly classify waste into exactly 8 categories: `overflowing_bin`, `garbage_dump`, `plastic_waste`, `construction_debris`, `organic_waste`, `e_waste`, `hazardous_waste`, or `drain_blockage`.
-
-### ⚖️ 3. How much waste volume needs to be cleared?
-*   **Contextual Volume Estimation:** The AI doesn't just guess; it compares the waste region to visible scale references in the photo (like vehicles, curbs, or people) to accurately categorize the issue as `small`, `medium`, `large`, or `very_large`. It even provides explicit "Reasoning" text for full transparency.
-
-### 🚚 4. Which cleanup team should be dispatched?
-*   **Operational Recommendations:** Our `recommendation_service` translates AI classifications into actionable insights (e.g., "Dispatch a 10-wheeler truck with hazmat protocols").
-*   **Admin Assignment:** Commissioners can manually review and assign specific teams to open tickets.
-
-### 🔄 5. Is this a duplicate complaint?
-*   **AI Deduplication:** A smart algorithm compares GPS proximity, waste category, and time threshold. Duplicate reports are flagged automatically, preventing authorities from dispatching two trucks to the same location.
-
-### 🚨 6. Which complaints need urgent escalation?
-*   **Dynamic Priority Scoring (0-100):** If a complaint is hazardous (like medical waste), massive in volume, or reported repeatedly by many citizens (triggering a crowd-sourcing multiplier), its priority score spikes dynamically.
-
-### 📊 7. How should limited resources be prioritized?
-*   **Triage First:** The Inspector Dashboard defaults to sorting by Priority Score, guaranteeing that the most urgent and dangerous hotspots are addressed before minor aesthetic issues.
+Built for **THE TECHNOVA CHALLENGE**. SwachhLens empowers citizens to report waste using just their smartphones, while giving municipal officers and commissioners a real-time command dashboard to prioritize complaints, dispatch teams, and track resolution.
 
 ---
 
-## 🔒 Data Ethics & Privacy
-*   **Jurisdiction Scoping:** A strict security model ensures that an inspector in Patna cannot view complaints from Kashmir. Access is gated meticulously by State > District > City > Ward. 
-*   **Secure API Handling:** All API keys (Gemini, Groq, LocationIQ) are stored exclusively in the backend `.env` file, fully protected from the client side.
+## 🚀 Core Features
+
+### For Citizens (Mobile App)
+- 📷 **Photo-based complaint filing** — point, shoot, submit.
+- 📍 **Auto GPS tagging** — precise location captured on submission.
+- 🔁 **AI Deduplication** — prevents flooding the system with the same hotspot.
+
+### For Inspectors (Web Dashboard)
+- 🗺️ **Live Map** — automatically centers on the officer's assigned jurisdiction on login.
+- 🔔 **Real-time Notifications** — bell icon polls the backend for new complaints; red dot appears for unseen, clears on open.
+- 🏷️ **Priority Triage** — complaints sorted by a 0-100 AI priority score (volume × category × crowd multiplier).
+- 🔍 **Filter & Search** — filter by category, status, priority range; search by address or ID.
+- 🎨 **Theme System** — Light / Dark / System theme with full UI adaptation.
+
+### For Commissioners (Admin Panel)
+- 👮 **Jurisdiction Assignment** — assign State → District → City → Ward to pending officers.
+- ✅ **One-click Assign** — cascading dropdowns prevent invalid selections.
+
+---
+
+## 🤖 AI Pipeline
+
+| Step | Technology | What it does |
+|------|-----------|-------------|
+| Vision Classification | Google Gemini 2.5 Flash (+ Groq Llama 3.2 fallback) | Classifies waste type from photo |
+| Volume Estimation | Gemini | Compares waste to scene scale references |
+| Priority Scoring | Custom formula | Urgency = f(category, volume, duplicates) |
+| Action Recommendation | Rule-based | "Dispatch 10-wheeler with hazmat protocol" |
+| Deduplication | GPS + category + time threshold | Flags near-duplicate reports |
+| Reverse Geocoding | LocationIQ API | Resolves GPS → State/District/City |
+
+---
+
+## 🔒 Security & Privacy
+
+- **Jurisdiction Scoping** — inspectors can only view complaints in their assigned area.
+- **Firebase Auth** — Google OAuth + JWT; tokens never stored beyond session.
+- **Server-side Geocoding** — client-supplied location is discarded; GPS coordinates are always resolved server-side.
+- **Secrets** — all API keys (Gemini, Groq, LocationIQ, Firebase Admin SDK) live exclusively in `backend/.env`. The Firebase service account JSON is gitignored.
 
 ---
 
 ## 🛠️ Tech Stack
-*   **Mobile App (Citizen UI):** React Native (Expo) - Captures photos, precise GPS coordinates, and timestamps.
-*   **Web Dashboard (Inspector/Admin UI):** React (Vite) - Features advanced sorting, priority filtering, and Admin approval flows.
-*   **Backend API:** Python (FastAPI) - Highly scalable REST architecture.
-*   **Database:** MongoDB - Flexible NoSQL storage for complex JSON payloads.
-*   **AI Engine:** Google Gemini 2.5 Flash Vision (Primary) & Groq Llama 3.2 Vision (Fallback).
+
+| Layer | Technology |
+|-------|-----------|
+| Mobile App | React Native (Expo) |
+| Web Dashboard | React + Vite + Tailwind CSS v4 |
+| Backend API | Python (FastAPI) |
+| Database | PostgreSQL (prod) / in-memory mock (dev) |
+| AI Engine | Google Gemini 2.5 Flash Vision + Groq fallback |
+| Auth | Firebase Authentication |
+| Maps | Leaflet + OpenStreetMap (Nominatim geocoding) |
 
 ---
 
 ## ⚙️ Getting Started
 
-### 1. Backend Setup
+### Prerequisites
+- Node.js ≥ 18, Python ≥ 3.10, Git
+
+### 1. Clone
+```bash
+git clone https://github.com/Mehbasu/SwachhLens.git
+cd SwachhLens
+```
+
+### 2. Backend
 ```bash
 cd backend
 python -m venv venv
-# Activate venv (source venv/bin/activate on Mac/Linux, or venv\Scripts\activate on Windows)
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+# source venv/bin/activate
 pip install -r requirements.txt
 ```
-Create a `.env` file in the `backend/` directory:
+
+Create `backend/.env`:
 ```env
 GEMINI_API_KEY="your_gemini_key"
 GROQ_API_KEY="your_groq_key"
 LOCATIONIQ_API_KEY="your_locationiq_key"
-```
-Run the server:
-```bash
-uvicorn main:app --reload
+FIREBASE_PROJECT_ID="your_firebase_project_id"
 ```
 
-### 2. Dashboard Setup
+Place your Firebase Admin SDK JSON at `backend/firebase-adminsdk.json` (**never commit this file**).
+
+Run:
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+### 3. Dashboard
 ```bash
 cd dashboard
 npm install
+```
+
+Create `dashboard/.env`:
+```env
+VITE_API_BASE_URL=http://localhost:8001
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+```
+
+Run:
+```bash
 npm run dev
 ```
 
-### 3. Mobile App Setup
+### 4. Mobile App
 ```bash
 cd mobile-app
 npm install
 npx expo start
 ```
+
+Scan the QR code with Expo Go on your phone.
+
+---
+
+## 📁 Project Structure
+
+```
+SwachhLens/
+├── backend/               # FastAPI server
+│   ├── routes/            # auth.py, complaints.py
+│   ├── services/          # AI, priority, dedup, upload
+│   ├── models/            # Pydantic schemas
+│   └── db/                # Database layer
+├── dashboard/             # React/Vite web dashboard
+│   └── src/
+│       ├── components/    # Navbar, MapView, ComplaintTable…
+│       ├── hooks/         # useNotifications (real-time polling)
+│       ├── pages/         # DashboardHome, ComplaintsList, AdminPanel…
+│       └── services/      # api.js (Axios client)
+└── mobile-app/            # Expo React Native citizen app
+    └── src/screens/       # Login, Signup, Home, Report
+```
+
+---
+
+## 🤝 Contributing
+
+PRs welcome. Please open an issue first to discuss significant changes.
