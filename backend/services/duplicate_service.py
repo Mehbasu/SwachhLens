@@ -27,9 +27,10 @@ def parse_iso_datetime(dt_str: str) -> datetime:
     except Exception:
         return datetime.now(timezone.utc)
 
-def check_duplicate(gps: Dict[str, float], category: str, timestamp_iso: str, existing_complaints: List[Dict[str, Any]]) -> Tuple[bool, Optional[str], int]:
+def check_duplicate(gps: Dict[str, float], category: str, timestamp_iso: str, existing_complaints: List[Dict[str, Any]], image_hash_hex: Optional[str] = None) -> Tuple[bool, Optional[str], int]:
     """
     Checks existing OPEN complaints within 100 meters AND within 24 hours AND same category.
+    If image_hash_hex is provided, compares visual similarity (Hamming distance <= 10).
     Returns (is_duplicate: bool, duplicate_of: str | None, duplicate_count: int)
     """
     if not gps or "lat" not in gps or "lng" not in gps:
@@ -38,6 +39,14 @@ def check_duplicate(gps: Dict[str, float], category: str, timestamp_iso: str, ex
     current_lat = float(gps["lat"])
     current_lng = float(gps["lng"])
     current_dt = parse_iso_datetime(timestamp_iso)
+
+    import imagehash
+    current_hash_obj = None
+    if image_hash_hex:
+        try:
+            current_hash_obj = imagehash.hex_to_hash(image_hash_hex)
+        except Exception:
+            pass
 
     matching_id = None
     duplicate_count = 0
@@ -65,6 +74,16 @@ def check_duplicate(gps: Dict[str, float], category: str, timestamp_iso: str, ex
                 float(item_gps["lat"]), float(item_gps["lng"])
             )
             if dist <= 100.0:
+                # If hashes exist, verify visual similarity
+                if current_hash_obj and item.get("image_hash"):
+                    try:
+                        item_hash_obj = imagehash.hex_to_hash(item["image_hash"])
+                        # Hamming distance <= 10 means visually similar
+                        if current_hash_obj - item_hash_obj > 10:
+                            continue
+                    except Exception:
+                        pass # Ignore hash parse errors, default to geo matching
+                        
                 duplicate_count += 1
                 if not matching_id:
                     # Link to primary complaint if existing item is itself a duplicate

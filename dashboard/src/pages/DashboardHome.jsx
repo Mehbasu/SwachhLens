@@ -37,7 +37,7 @@ export default function DashboardHome() {
     if (res.success) {
       setComplaints(res.data);
     } else {
-      setError(res.error || 'Unable to connect to SwachhLens Backend at http://localhost:8000. Please ensure the server is running.');
+      setError(res.error || 'Unable to connect to SwachhLens Backend at http://localhost:8001. Please ensure the server is running.');
     }
     setLoading(false);
   };

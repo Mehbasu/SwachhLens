@@ -48,3 +48,44 @@ def calculate_priority(category: str, volume: str, gps: Optional[Dict[str, float
 
     final_score = min(100.0, max(0.0, score))
     return round(final_score, 1)
+
+def get_dynamic_priority(complaint: dict) -> float:
+    """
+    Calculates dynamic priority by taking the base priority score
+    and adding an age-based penalty (+1 point per hour open, capped at +20).
+    If resolved, uses resolved_at instead of current time.
+    Ensures final score is <= 100.
+    """
+    from datetime import datetime, timezone
+    base_score = float(complaint.get("priority_score", 0.0))
+    status = complaint.get("status", "submitted")
+    timestamp_iso = complaint.get("timestamp")
+    
+    if not timestamp_iso:
+        return base_score
+        
+    try:
+        dt_start = datetime.fromisoformat(timestamp_iso.replace("Z", "+00:00"))
+    except Exception:
+        return base_score
+
+    if status == "resolved":
+        resolved_iso = complaint.get("resolved_at")
+        if resolved_iso:
+            try:
+                dt_end = datetime.fromisoformat(resolved_iso.replace("Z", "+00:00"))
+            except Exception:
+                dt_end = datetime.now(timezone.utc)
+        else:
+            return base_score # Can't calculate accurately without resolved_at
+    else:
+        dt_end = datetime.now(timezone.utc)
+        
+    hours_open = (dt_end - dt_start).total_seconds() / 3600.0
+    
+    if hours_open <= 0:
+        return base_score
+        
+    age_penalty = min(20.0, hours_open * 1.0) # +1 point per hour, max 20
+    
+    return round(min(100.0, base_score + age_penalty), 1)

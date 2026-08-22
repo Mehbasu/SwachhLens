@@ -56,7 +56,7 @@ export default function Analytics() {
       <div className="py-20 text-center space-y-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
         <BarChart3 className="w-12 h-12 text-rose-500 mx-auto" />
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Analytics Unavailable</h2>
-        <p className="text-xs text-slate-600 dark:text-slate-400">{error || 'Unable to connect to analytics server at http://localhost:8000.'}</p>
+        <p className="text-xs text-slate-600 dark:text-slate-400">{error || 'Unable to connect to analytics server at http://localhost:8001.'}</p>
         <button
           onClick={loadAnalytics}
           className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-xl transition-colors"

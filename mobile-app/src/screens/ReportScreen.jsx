@@ -116,7 +116,7 @@ export default function ReportScreen({ navigation }) {
       setIsAnalyzing(false);
       Alert.alert(
         'Connection Error',
-        "Couldn't connect to SwachhLens Backend Server.\n\nPlease ensure backend is running at http://localhost:8000 (or http://10.0.2.2:8001 on Android emulator)."
+        "Couldn't connect to SwachhLens Backend Server.\n\nPlease ensure backend is running at http://localhost:8001 (or http://10.0.2.2:8001 on Android emulator)."
       );
     }
   };

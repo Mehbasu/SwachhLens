@@ -11,7 +11,7 @@ from models.complaint import ComplaintResponse, StatusUpdate, Hotspot, Analytics
 from services.upload_service import save_upload_file
 from services.ai_service import classify_waste
 from services.duplicate_service import check_duplicate
-from services.priority_service import calculate_priority
+from services.priority_service import calculate_priority, get_dynamic_priority
 from services.recommendation_service import get_recommended_action
 
 router = APIRouter()
@@ -59,7 +59,7 @@ async def create_complaint(
     state = None
     district = None
     city = None
-    ward = None
+    # ward is intentionally preserved because reverse geocoding cannot resolve it
     
     import os
     API_KEY = os.environ.get("LOCATIONIQ_API_KEY")
@@ -108,9 +108,19 @@ async def create_complaint(
 
     timestamp_iso = timestamp if timestamp else datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
+    # 3.5 Generate perceptual hash of the image
+    image_hash_hex = None
+    try:
+        from PIL import Image
+        import imagehash
+        with Image.open(saved_filepath) as img:
+            image_hash_hex = str(imagehash.phash(img))
+    except Exception as e:
+        print(f"Failed to generate image hash: {e}")
+
     # 4. Duplicate complaint detection
     existing_complaints = db.find_all()
-    is_dup, dup_of, dup_count = check_duplicate(gps_dict, final_category, timestamp_iso, existing_complaints)
+    is_dup, dup_of, dup_count = check_duplicate(gps_dict, final_category, timestamp_iso, existing_complaints, image_hash_hex)
 
     if is_dup and dup_of:
         parent = db.find_one({"id": dup_of})
@@ -156,7 +166,8 @@ async def create_complaint(
         "state": state,
         "district": district,
         "city": city,
-        "ward": normalized_ward
+        "ward": normalized_ward,
+        "image_hash": image_hash_hex
     }
 
     db.insert_one(doc)
@@ -194,6 +205,10 @@ async def list_complaints(
 
     if category and category != "all":
         items = [i for i in items if i.get("category") == category]
+
+    # Inject dynamic priority
+    for i in items:
+        i["priority_score"] = get_dynamic_priority(i)
 
     if min_priority is not None:
         items = [i for i in items if i.get("priority_score", 0) >= min_priority]
@@ -235,7 +250,7 @@ async def get_hotspots(current_user: dict = Depends(get_current_user)):
             key = (round(float(gps["lat"]), 3), round(float(gps["lng"]), 3))
             if key not in clusters:
                 clusters[key] = []
-            clusters[key].append(float(item.get("priority_score", 0)))
+            clusters[key].append(get_dynamic_priority(item))
 
     result = []
     for (lat, lng), priorities in clusters.items():
@@ -286,7 +301,7 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
         cat = item.get("category", "other")
         by_category[cat] = by_category.get(cat, 0) + 1
 
-        if float(item.get("priority_score", 0)) >= 80.0:
+        if get_dynamic_priority(item) >= 80.0:
             urgent_count += 1
             
         # Timeline aggregation
@@ -377,6 +392,7 @@ async def get_complaint_by_id(id: str, current_user: dict = Depends(get_current_
     if current_user.get("ward") and item.get("ward") != current_user.get("ward"):
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
         
+    item["priority_score"] = get_dynamic_priority(item)
     return item
 
 
@@ -401,9 +417,13 @@ async def update_complaint_status(id: str, payload: StatusUpdate, current_user: 
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
 
     update_fields = {"status": payload.status}
+    if payload.status == "resolved" and item.get("status") != "resolved":
+        update_fields["resolved_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        
     if payload.assigned_team is not None:
         update_fields["assigned_team"] = payload.assigned_team
 
     db.update_one({"id": id}, {"$set": update_fields})
     updated_item = db.find_one({"id": id})
+    updated_item["priority_score"] = get_dynamic_priority(updated_item)
     return updated_item
