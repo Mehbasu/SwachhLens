@@ -10,6 +10,13 @@ try:
 except ImportError:
     HAS_GENAI = False
 
+try:
+    from groq import Groq
+    import base64
+    HAS_GROQ = True
+except ImportError:
+    HAS_GROQ = False
+
 CATEGORIES = [
     "overflowing_bin",
     "garbage_dump",
@@ -70,7 +77,61 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
                     "reasoning": data.get("reasoning", "Estimated based on visible scale references in the image.")
                 }
         except Exception as e:
-            print(f"AI classification failed: {e}. Falling back to mock data.")
+            print(f"Gemini API failed: {e}. Trying Groq fallback.")
+
+    groq_api_key = os.environ.get("GROQ_API_KEY")
+    if HAS_GROQ and groq_api_key and os.path.exists(image_path):
+        try:
+            client = Groq(api_key=groq_api_key)
+            with open(image_path, "rb") as image_file:
+                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+            
+            prompt = f"""
+            Analyze this image of municipal waste. 
+            Classify it into exactly one of these categories: {', '.join(CATEGORIES)}.
+            Estimate the volume into exactly one of these sizes: {', '.join(VOLUMES)}.
+            To estimate the volume, compare the waste to visible scale references in the frame (e.g., a bin, curb, vehicle, person).
+            Return ONLY a valid JSON object with the following keys:
+            - "category": the classified category string
+            - "volume": the estimated volume string
+            - "ai_confidence": a float between 0 and 100
+            - "reasoning": a short one-line string explaining your volume estimation based on scale references
+            Do not include markdown blocks or any other text.
+            """
+
+            response = client.chat.completions.create(
+                model="llama-3.2-90b-vision-preview",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
+                            }
+                        ]
+                    }
+                ],
+                temperature=0.1
+            )
+            
+            text = response.choices[0].message.content.strip()
+            if text.startswith('```json'):
+                text = text[7:-3]
+            elif text.startswith('```'):
+                text = text[3:-3]
+                
+            data = json.loads(text.strip())
+            if data.get("category") in CATEGORIES and data.get("volume") in VOLUMES:
+                return {
+                    "category": data["category"],
+                    "volume": data["volume"],
+                    "ai_confidence": float(data.get("ai_confidence", 85.0)),
+                    "reasoning": data.get("reasoning", "Estimated using Groq Vision fallback.")
+                }
+        except Exception as e:
+            print(f"Groq API fallback failed: {e}. Falling back to mock data.")
 
     # Fallback mock logic
     category = random.choice(CATEGORIES)
