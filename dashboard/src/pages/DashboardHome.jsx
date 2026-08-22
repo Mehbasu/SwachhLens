@@ -64,9 +64,12 @@ export default function DashboardHome() {
   const stateStr = localStorage.getItem('swachhlens_state');
   const districtStr = localStorage.getItem('swachhlens_district');
   const cityStr = localStorage.getItem('swachhlens_city');
+  const wardStr = localStorage.getItem('swachhlens_ward');
 
   let jurisdictionText = 'National Overview';
-  if (cityStr && cityStr !== 'null') {
+  if (wardStr && wardStr !== 'null') {
+    jurisdictionText = `${wardStr.charAt(0).toUpperCase() + wardStr.slice(1)}, ${cityStr}`;
+  } else if (cityStr && cityStr !== 'null') {
     jurisdictionText = `${cityStr} City Sector`;
   } else if (districtStr && districtStr !== 'null') {
     jurisdictionText = `${districtStr} District Sector`;

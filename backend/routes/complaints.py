@@ -1,4 +1,6 @@
 import json
+import os
+import requests
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query, Request, Depends
@@ -30,7 +32,8 @@ async def create_complaint(
     timestamp: Optional[str] = Form(None),
     state: Optional[str] = Form(None),
     district: Optional[str] = Form(None),
-    city: Optional[str] = Form(None)
+    city: Optional[str] = Form(None),
+    ward: Optional[str] = Form(None)
 ):
     """
     Creates a new waste complaint with automated AI vision classification,
@@ -49,6 +52,38 @@ async def create_complaint(
             pass
 
     gps_dict = {"lat": final_lat, "lng": final_lng}
+
+    # 1.5 Server-Side Reverse Geocoding
+    # Ignore client state/district/city and strictly use GPS
+    API_KEY = "pk.d831da9eae25205a537e2cb4c9db2f3d"
+    try:
+        loc_res = requests.get(f"https://us1.locationiq.com/v1/reverse.php?key={API_KEY}&lat={final_lat}&lon={final_lng}&format=json", timeout=5)
+        if loc_res.status_code == 200:
+            loc_data = loc_res.json()
+            addr = loc_data.get("address", {})
+            geo_state = addr.get("state")
+            geo_district = addr.get("state_district") or addr.get("county") or addr.get("city") or addr.get("town")
+            geo_city = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("municipality") or addr.get("suburb") or addr.get("hamlet")
+
+            locations_path = os.path.join(os.path.dirname(__file__), "..", "data", "india_locations.json")
+            with open(locations_path, 'r') as f:
+                canon_locs = json.load(f)
+
+            if geo_state:
+                matched_state = next((s for s in canon_locs["states"] if s["name"].lower() == geo_state.lower() or geo_state.lower() in s["name"].lower() or s["name"].lower() in geo_state.lower()), None)
+                if matched_state:
+                    state = matched_state["name"]  # Override client input
+                    if geo_district:
+                        dist_search = geo_district.lower().replace(' district', '')
+                        matched_district = next((d for d in matched_state["districts"] if dist_search in d["name"].lower() or d["name"].lower() in dist_search), None)
+                        if matched_district:
+                            district = matched_district["name"]  # Override client input
+                            if geo_city:
+                                matched_city = next((c for c in matched_district["cities"] if geo_city.lower() in c.lower() or c.lower() in geo_city.lower()), None)
+                                if matched_city:
+                                    city = matched_city  # Override client input
+    except Exception as e:
+        print("Server-side geocoding failed:", e)
 
     # 2. Save uploaded image
     base_url = str(request.base_url)
@@ -90,6 +125,8 @@ async def create_complaint(
 
     clean_comment = comment or ""
 
+    normalized_ward = ward.strip().lower() if ward else None
+
     doc = {
         "id": generated_id,
         "image_url": image_url,
@@ -109,7 +146,8 @@ async def create_complaint(
         "ai_confidence": ai_confidence,
         "state": state,
         "district": district,
-        "city": city
+        "city": city,
+        "ward": normalized_ward
     }
 
     db.insert_one(doc)
@@ -138,6 +176,8 @@ async def list_complaints(
             items = [i for i in items if i.get("district") == current_user.get("district")]
         if current_user.get("city"):
             items = [i for i in items if i.get("city") == current_user.get("city")]
+        if current_user.get("ward"):
+            items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     # Filters
     if status and status != "all":
@@ -175,6 +215,8 @@ async def get_hotspots(current_user: dict = Depends(get_current_user)):
             items = [i for i in items if i.get("district") == current_user.get("district")]
         if current_user.get("city"):
             items = [i for i in items if i.get("city") == current_user.get("city")]
+        if current_user.get("ward"):
+            items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     clusters: Dict[tuple, List[float]] = {}
 
@@ -214,6 +256,8 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
             items = [i for i in items if i.get("district") == current_user.get("district")]
         if current_user.get("city"):
             items = [i for i in items if i.get("city") == current_user.get("city")]
+        if current_user.get("ward"):
+            items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     total = len(items)
 
@@ -305,13 +349,25 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/complaints/{id}", response_model=ComplaintResponse)
-async def get_complaint_by_id(id: str):
+async def get_complaint_by_id(id: str, current_user: dict = Depends(get_current_user)):
     """
     Retrieves details for a single complaint by ID.
+    Enforces jurisdiction scoping (404 if outside jurisdiction).
     """
     item = db.find_one({"id": id})
     if not item:
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+        
+    # Security: Jurisdiction Check
+    if current_user.get("state") and item.get("state") != current_user.get("state"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+    if current_user.get("district") and item.get("district") != current_user.get("district"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+    if current_user.get("city") and item.get("city") != current_user.get("city"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+    if current_user.get("ward") and item.get("ward") != current_user.get("ward"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+        
     return item
 
 
@@ -319,9 +375,20 @@ async def get_complaint_by_id(id: str):
 async def update_complaint_status(id: str, payload: StatusUpdate, current_user: dict = Depends(get_current_user)):
     """
     Updates status and optional team assignment for a complaint.
+    Enforces jurisdiction scoping.
     """
     item = db.find_one({"id": id})
     if not item:
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+        
+    # Security: Jurisdiction Check
+    if current_user.get("state") and item.get("state") != current_user.get("state"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+    if current_user.get("district") and item.get("district") != current_user.get("district"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+    if current_user.get("city") and item.get("city") != current_user.get("city"):
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+    if current_user.get("ward") and item.get("ward") != current_user.get("ward"):
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
 
     update_fields = {"status": payload.status}

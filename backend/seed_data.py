@@ -26,7 +26,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 96.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-002",
@@ -47,7 +48,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 94.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-003",
@@ -68,7 +70,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 98.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-004",
@@ -89,7 +92,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 91.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-005",
@@ -110,7 +114,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 89.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-006",
@@ -131,7 +136,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 93.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-007",
@@ -152,7 +158,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 95.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-008",
@@ -173,7 +180,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 97.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-009",
@@ -194,7 +202,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 90.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-010",
@@ -215,7 +224,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 88.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-011",
@@ -236,7 +246,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 94.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-012",
@@ -257,7 +268,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 95.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-013",
@@ -278,7 +290,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 91.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-014",
@@ -299,7 +312,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 96.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-015",
@@ -320,7 +334,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 89.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-016",
@@ -341,7 +356,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 92.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-017",
@@ -362,7 +378,8 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 97.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
   },
   {
     "id": "COMP-2026-018",
@@ -383,7 +400,52 @@ INITIAL_COMPLAINTS = [
     "ai_confidence": 87.0,
     "state": "Bihar",
     "district": "Patna",
-    "city": "Patna"
+    "city": "Patna",
+    "ward": "ward 14"
+  },
+  {
+    "id": "COMP-2026-019",
+    "image_url": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80",
+    "category": "overflowing_bin",
+    "volume": "large",
+    "priority_score": 90.0,
+    "status": "submitted",
+    "gps": { "lat": 34.0837, "lng": 74.7973 },
+    "address": "Lal Chowk, Srinagar, J&K",
+    "timestamp": "2026-08-14T09:15:00Z",
+    "comment": "Overflowing bin at Lal Chowk.",
+    "reporter_comment": "Overflowing bin at Lal Chowk.",
+    "recommended_action": "Dispatch truck",
+    "is_duplicate": False,
+    "duplicate_of": None,
+    "assigned_team": "Srinagar Unit",
+    "ai_confidence": 95.0,
+    "state": "Jammu and Kashmir",
+    "district": "Srinagar",
+    "city": "Srinagar",
+    "ward": "ward 1"
+  },
+  {
+    "id": "COMP-2026-020",
+    "image_url": "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80",
+    "category": "garbage_dump",
+    "volume": "very_large",
+    "priority_score": 99.0,
+    "status": "submitted",
+    "gps": { "lat": 28.6139, "lng": 77.2090 },
+    "address": "Connaught Place, New Delhi",
+    "timestamp": "2026-08-14T10:00:00Z",
+    "comment": "Large garbage dump in CP.",
+    "reporter_comment": "Large garbage dump in CP.",
+    "recommended_action": "Deploy JCB",
+    "is_duplicate": False,
+    "duplicate_of": None,
+    "assigned_team": "NDMC Unit",
+    "ai_confidence": 98.0,
+    "state": "Delhi",
+    "district": "New Delhi",
+    "city": "New Delhi",
+    "ward": "ward 2"
   }
 ]
 

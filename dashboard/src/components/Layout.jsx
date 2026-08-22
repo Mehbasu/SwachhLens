@@ -3,12 +3,14 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import Dock from './ui/Dock';
 import ProfileModal from './ProfileModal';
-import { LayoutDashboard, ClipboardList, BarChart2, User } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart2, User, Shield } from 'lucide-react';
 
 export default function Layout() {
   const [globalSearch, setGlobalSearch] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
+  
+  const role = localStorage.getItem('swachhlens_role');
 
   const dockItems = [
     { 
@@ -32,6 +34,14 @@ export default function Layout() {
       onClick: () => setIsProfileOpen(true) 
     },
   ];
+
+  if (role === 'commissioner') {
+    dockItems.splice(3, 0, {
+      icon: <Shield size={20} />,
+      label: 'Admin',
+      onClick: () => navigate('/admin')
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 flex selection:bg-teal-500/30">

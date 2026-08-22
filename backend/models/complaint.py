@@ -48,6 +48,7 @@ class ComplaintBase(BaseModel):
     state: Optional[str] = None
     district: Optional[str] = None
     city: Optional[str] = None
+    ward: Optional[str] = None
 
     @model_validator(mode="before")
     @classmethod

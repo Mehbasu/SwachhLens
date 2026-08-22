@@ -20,6 +20,22 @@ export default function ComplaintsList() {
 
   const { globalSearch } = useOutletContext() || {};
 
+  const stateStr = localStorage.getItem('swachhlens_state');
+  const districtStr = localStorage.getItem('swachhlens_district');
+  const cityStr = localStorage.getItem('swachhlens_city');
+  const wardStr = localStorage.getItem('swachhlens_ward');
+
+  let jurisdictionText = 'National Overview';
+  if (wardStr && wardStr !== 'null') {
+    jurisdictionText = `${wardStr.charAt(0).toUpperCase() + wardStr.slice(1)}, ${cityStr}`;
+  } else if (cityStr && cityStr !== 'null') {
+    jurisdictionText = `${cityStr} City Sector`;
+  } else if (districtStr && districtStr !== 'null') {
+    jurisdictionText = `${districtStr} District Sector`;
+  } else if (stateStr && stateStr !== 'null') {
+    jurisdictionText = `${stateStr} State Sector`;
+  }
+
   const fetchComplaints = async () => {
     setLoading(true);
     setError(null);
@@ -59,11 +75,16 @@ export default function ComplaintsList() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-extrabold text-white tracking-tight">
-            Waste Complaints Directory
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl md:text-2xl font-extrabold text-white tracking-tight">
+              Waste Complaints Directory
+            </h1>
+            <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
+              {jurisdictionText}
+            </span>
+          </div>
           <p className="text-xs text-slate-400 mt-1">
-            Filter, search, and prioritize incoming civic waste grievances across Patna.
+            Filter, search, and prioritize incoming civic waste grievances across your jurisdiction.
           </p>
         </div>
 

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+from typing import List
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
 import bcrypt
@@ -22,6 +23,7 @@ class UserRegister(BaseModel):
     state: str = None
     district: str = None
     city: str = None
+    ward: str = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -35,11 +37,13 @@ class Token(BaseModel):
     state: str = None
     district: str = None
     city: str = None
+    ward: str = None
 
 class LocationUpdate(BaseModel):
     state: str = None
     district: str = None
     city: str = None
+    ward: str = None
 
 def verify_password(plain_password, hashed_password):
     password_bytes = plain_password.encode('utf-8')[:72]
@@ -73,9 +77,15 @@ async def register(user: UserRegister):
             detail="Email already registered"
         )
     
+    # Security: Force 'inspector' role for self-registration
+    user.role = "inspector"
+    
+    # Normalize ward
+    normalized_ward = user.ward.strip().lower() if user.ward else None
+    
     hashed_password = get_password_hash(user.password)
     try:
-        db.insert_user(user.email, hashed_password, user.role, user.state, user.district, user.city)
+        db.insert_user(user.email, hashed_password, user.role, user.state, user.district, user.city, normalized_ward)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -94,7 +104,8 @@ async def register(user: UserRegister):
         "email": user.email,
         "state": user.state,
         "district": user.district,
-        "city": user.city
+        "city": user.city,
+        "ward": normalized_ward
     }
 
 @router.post("/login", response_model=Token)
@@ -120,7 +131,8 @@ async def login(user: UserLogin):
         "email": db_user["email"],
         "state": db_user.get("state"),
         "district": db_user.get("district"),
-        "city": db_user.get("city")
+        "city": db_user.get("city"),
+        "ward": db_user.get("ward")
     }
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -150,26 +162,53 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return user
 
-@router.put("/profile/location")
-async def update_location(location: LocationUpdate, current_user: dict = Depends(get_current_user)):
-    try:
-        # We need a db method to update a user. Since it doesn't exist, we'll write raw SQL or add a method.
-        # Let's just use raw SQL here to avoid editing database.py again if possible, or we can use db.conn
-        if not db.conn:
-            # Mock DB update
-            if current_user["email"] in db._mock_users:
-                db._mock_users[current_user["email"]]["state"] = location.state
-                db._mock_users[current_user["email"]]["district"] = location.district
-                db._mock_users[current_user["email"]]["city"] = location.city
-        else:
-            with db.conn.cursor() as cur:
-                cur.execute(
-                    "UPDATE users SET state = %s, district = %s, city = %s WHERE email = %s",
-                    (location.state, location.district, location.city, current_user["email"])
-                )
-        return {"message": "Location updated successfully"}
-    except Exception as e:
+def get_current_commissioner(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "commissioner":
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error updating location: {str(e)}"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Requires commissioner role"
         )
+    return current_user
+
+@router.get("/users/pending")
+async def get_pending_users(current_admin: dict = Depends(get_current_commissioner)):
+    """
+    Returns a list of users (inspectors) who have no jurisdiction assigned.
+    """
+    if not db.conn:
+        # Mock DB
+        pending = []
+        for email, u in db._mock_users.items():
+            if u["role"] == "inspector" and not u.get("state"):
+                pending.append({"email": email, "role": u["role"]})
+        return pending
+    else:
+        with db.conn.cursor(dictionary=True) as cur:
+            cur.execute("SELECT email, role FROM users WHERE role = 'inspector' AND state IS NULL")
+            return cur.fetchall()
+
+@router.put("/users/{email}/jurisdiction")
+async def assign_jurisdiction(email: str, location: LocationUpdate, current_admin: dict = Depends(get_current_commissioner)):
+    """
+    Assigns state, district, city, ward to an officer.
+    """
+    target_user = db.get_user_by_email(email)
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    normalized_ward = location.ward.strip().lower() if location.ward else None
+    
+    if not db.conn:
+        if email in db._mock_users:
+            db._mock_users[email]["state"] = location.state
+            db._mock_users[email]["district"] = location.district
+            db._mock_users[email]["city"] = location.city
+            db._mock_users[email]["ward"] = normalized_ward
+    else:
+        with db.conn.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET state = %s, district = %s, city = %s, ward = %s WHERE email = %s",
+                (location.state, location.district, location.city, normalized_ward, email)
+            )
+            
+    return {"message": f"Jurisdiction assigned successfully to {email}"}

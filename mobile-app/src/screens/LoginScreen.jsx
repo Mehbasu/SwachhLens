@@ -3,14 +3,54 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingVi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Mail, ArrowLeft } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config'; // Assuming we create a config file or just use hardcoded
+
+// Use a fallback for emulator if API_URL is not set
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
 
 export default function LoginScreen({ navigation }) {
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    navigation.replace('LocationSetup');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await AsyncStorage.setItem('swachhlens_token', data.access_token);
+        if (data.state) await AsyncStorage.setItem('swachhlens_state', data.state);
+        if (data.district) await AsyncStorage.setItem('swachhlens_district', data.district);
+        if (data.city) await AsyncStorage.setItem('swachhlens_city', data.city);
+        if (data.ward) await AsyncStorage.setItem('swachhlens_ward', data.ward);
+
+        // If jurisdiction is fully setup, go to MainTabs, else LocationSetup
+        if (data.state && data.district && data.city && data.ward) {
+          navigation.replace('MainTabs');
+        } else {
+          navigation.replace('LocationSetup');
+        }
+      } else {
+        alert(data.detail || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Network error. Ensure backend is running.');
+    }
   };
 
   const images = [
