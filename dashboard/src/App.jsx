@@ -9,7 +9,7 @@ import ComplaintDetail from './pages/ComplaintDetail';
 import Analytics from './pages/Analytics';
 import GetStartedPage from './pages/GetStartedPage';
 import LocationSetupPage from './pages/LocationSetupPage';
-import AdminPanel from './pages/AdminPanel';
+
 
 // Simple Auth Protection Guard
 function ProtectedRoute({ children }) {
@@ -65,7 +65,7 @@ export default function App() {
           <Route path="complaints" element={<ComplaintsList />} />
           <Route path="complaints/:id" element={<ComplaintDetail />} />
           <Route path="analytics" element={<Analytics />} />
-          <Route path="admin" element={<AdminPanel />} />
+
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

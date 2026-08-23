@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
-import LightRays from '../components/ui/LightRays';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebase';
-
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Lock, Mail, ArrowRight, Eye, EyeOff } from "lucide-react";
+import LightRays from "../components/ui/LightRays";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../config/firebase";
+import indiaLocations from "../data/india_locations.json";
 export default function LoginPage() {
   const location = useLocation();
-  const [isRegister, setIsRegister] = useState(location.state?.register || false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isRegister, setIsRegister] = useState(
+    location.state?.register || false,
+  );
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('inspector'); // 'inspector' | 'commissioner'
-  const [name, setName] = useState('');
-  const [stateLoc, setStateLoc] = useState('');
-  const [district, setDistrict] = useState('');
-  const [city, setCity] = useState('');
-  const [showJurisdictionModal, setShowJurisdictionModal] = useState(false);
-  const [userToken, setUserToken] = useState(null);
+  const [role, setRole] = useState("inspector");
+  const [name, setName] = useState("");
 
-  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -38,72 +38,69 @@ export default function LoginPage() {
     try {
       let userCredential;
       if (isRegister) {
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
       } else {
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
       }
-      
+
       const token = await userCredential.user.getIdToken();
 
-      if (isRegister && role === 'inspector') {
-        setUserToken(token);
-        setShowJurisdictionModal(true);
-        setIsLoading(false);
-        return; // Halt here, don't sync or navigate yet
-      }
-
+      // Proceed immediately to sync with backend.
+      // If they are missing jurisdiction, App.jsx will route them to /setup-location
       await syncAndNavigate(token, role, name, isRegister);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || "Failed to authenticate.");
       setIsLoading(false);
     }
   };
 
-  const syncAndNavigate = async (token, role, name, isRegister, jurisdiction = null) => {
+  const syncAndNavigate = async (token, role, name, isRegister) => {
     try {
-      const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+      const BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:8001";
+
       const payload = { role: role };
       if (isRegister) {
         payload.name = name;
-        if (jurisdiction) {
-          payload.state = jurisdiction.state;
-          payload.district = jurisdiction.district;
-          payload.city = jurisdiction.city;
-        }
       }
 
       const response = await fetch(`${BASE_URL}/auth/sync`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Authentication failed');
+        throw new Error(data.detail || "Authentication failed");
       }
 
-      localStorage.setItem('swachhlens_auth_token', token);
-      localStorage.setItem('swachhlens_role', data.role);
-      if (data.state) localStorage.setItem('swachhlens_state', data.state);
-      if (data.district) localStorage.setItem('swachhlens_district', data.district);
-      if (data.city) localStorage.setItem('swachhlens_city', data.city);
+      localStorage.setItem("swachhlens_auth_token", token);
+      localStorage.setItem("swachhlens_role", data.role);
+      if (data.state) localStorage.setItem("swachhlens_state", data.state);
+      if (data.district)
+        localStorage.setItem("swachhlens_district", data.district);
+      if (data.city) localStorage.setItem("swachhlens_city", data.city);
+      if (data.ward) localStorage.setItem("swachhlens_ward", data.ward);
 
-      navigate('/');
+      navigate("/");
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
     }
-  };
-
-  const handleJurisdictionSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    await syncAndNavigate(userToken, role, name, true, { state: stateLoc, district, city });
   };
 
   return (
@@ -124,16 +121,15 @@ export default function LoginPage() {
 
       {/* Main Glass Card */}
       <div className="w-full max-w-[26rem] bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 relative z-10 shadow-2xl">
-        
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-[26px] font-semibold text-white tracking-tight">
-            {isRegister ? 'Request Access' : 'Welcome Back'}
+            {isRegister ? "Request Access" : "Welcome Back"}
           </h1>
           <p className="text-[13px] text-slate-400 font-medium mt-1">
-            {isRegister 
-              ? 'Apply for clearance to the cinematic control center' 
-              : 'Authenticate to access the cinematic control center'}
+            {isRegister
+              ? "Apply for clearance to the cinematic control center"
+              : "Authenticate to access the cinematic control center"}
           </p>
         </div>
 
@@ -144,38 +140,9 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          
           {/* Conditional Role Toggle for Registration */}
           {isRegister && (
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Access Level
-              </label>
-              <div className="flex bg-white/5 border border-white/5 rounded-2xl p-1 mb-4">
-                <button
-                  type="button"
-                  onClick={() => setRole('inspector')}
-                  className={`flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all ${
-                    role === 'inspector'
-                      ? 'bg-white text-black shadow-sm'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Sanitation Inspector
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole('commissioner')}
-                  className={`flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all ${
-                    role === 'commissioner'
-                      ? 'bg-white text-black shadow-sm'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Administrator
-                </button>
-              </div>
-
               {/* Name Field */}
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                 Full Name
@@ -238,7 +205,11 @@ export default function LoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -264,7 +235,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -276,7 +251,13 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full py-3.5 rounded-full bg-white hover:bg-slate-200 text-black font-semibold text-sm flex items-center justify-center gap-2 transition-all mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>{isLoading ? 'Processing...' : (isRegister ? 'Request Access' : 'Login to Control Center')}</span>
+            <span>
+              {isLoading
+                ? "Processing..."
+                : isRegister
+                  ? "Request Access"
+                  : "Login to Control Center"}
+            </span>
             {!isLoading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
@@ -285,8 +266,8 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           {isRegister ? (
             <p className="text-xs text-slate-400">
-              Already have an access clearance?{' '}
-              <button 
+              Already have an access clearance?{" "}
+              <button
                 onClick={() => setIsRegister(false)}
                 className="font-bold text-white hover:underline ml-1"
               >
@@ -295,8 +276,8 @@ export default function LoginPage() {
             </p>
           ) : (
             <p className="text-xs text-slate-400">
-              Need access clearance?{' '}
-              <button 
+              Need access clearance?{" "}
+              <button
                 onClick={() => setIsRegister(true)}
                 className="font-bold text-white hover:underline ml-1"
               >
@@ -306,69 +287,6 @@ export default function LoginPage() {
           )}
         </div>
       </div>
-
-      {/* Jurisdiction Modal Overlay */}
-      {showJurisdictionModal && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-[26rem] bg-black border border-white/10 rounded-[2rem] p-8 shadow-2xl relative">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-white tracking-tight">Set Jurisdiction</h2>
-              <p className="text-xs text-slate-400 mt-1">Please specify the area you are responsible for.</p>
-            </div>
-
-            {error && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleJurisdictionSubmit} className="space-y-4">
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Location Details
-                </label>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  value={stateLoc}
-                  onChange={(e) => setStateLoc(e.target.value)}
-                  placeholder="State (e.g. Bihar)"
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10"
-                  required
-                />
-                <input
-                  type="text"
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="District (e.g. Patna)"
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-3">
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="City (e.g. Patna)"
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3.5 rounded-full bg-teal-500 hover:bg-teal-400 text-black font-bold text-sm flex items-center justify-center gap-2 transition-all mt-6 disabled:opacity-50"
-              >
-                <span>{isLoading ? 'Saving...' : 'Complete Registration'}</span>
-                {!isLoading && <ArrowRight className="w-4 h-4" />}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { auth } from '../config/firebase';
  * - Physical Mobile Device (Expo Go app): Replace with your computer's local Wi-Fi IP address (e.g. 'http://192.168.1.100:8001')
  */
 const BASE_URL =
-  (typeof process !== 'undefined' && process.env && (process.env.EXPO_PUBLIC_API_BASE_URL || process.env.API_BASE_URL)) ||
+  (typeof process !== 'undefined' && process.env && (process.env.EXPO_PUBLIC_API_URL || process.env.API_BASE_URL)) ||
   (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
 
 const apiClient = axios.create({

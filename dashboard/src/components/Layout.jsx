@@ -35,13 +35,7 @@ export default function Layout() {
     },
   ];
 
-  if (role === 'commissioner') {
-    dockItems.splice(3, 0, {
-      icon: <Shield size={20} />,
-      label: 'Admin',
-      onClick: () => navigate('/admin')
-    });
-  }
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex selection:bg-teal-500/30">

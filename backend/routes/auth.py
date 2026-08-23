@@ -136,6 +136,34 @@ async def update_profile(update: ProfileUpdate, current_user: dict = Depends(get
                 cur.execute("UPDATE users SET avatar_url = %s WHERE email = %s", (update.avatar_url, current_user["email"]))
     return {"message": "Profile updated successfully"}
 
+@router.patch("/jurisdiction/self")
+async def update_own_jurisdiction(location: LocationUpdate, current_user: dict = Depends(get_current_user)):
+    """
+    Updates the current user's jurisdiction.
+    """
+    normalized_ward = location.ward.strip().lower() if location.ward else None
+    
+    if not db.conn:
+        email = current_user["email"]
+        if email in db._mock_users:
+            if location.state is not None:
+                db._mock_users[email]["state"] = location.state
+            if location.district is not None:
+                db._mock_users[email]["district"] = location.district
+            if location.city is not None:
+                db._mock_users[email]["city"] = location.city
+            if location.ward is not None:
+                db._mock_users[email]["ward"] = normalized_ward
+    else:
+        with db.conn.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET state = %s, district = %s, city = %s, ward = %s WHERE email = %s",
+                (location.state, location.district, location.city, normalized_ward, current_user["email"])
+            )
+            
+    return {"message": "Jurisdiction updated successfully"}
+
+
 from fastapi import UploadFile, File, Request
 from services.upload_service import save_upload_file
 
@@ -158,45 +186,4 @@ async def upload_avatar(request: Request, image: UploadFile = File(...), current
     return {"avatar_url": avatar_url}
 
 
-@router.get("/users/pending")
-async def get_pending_users(current_admin: dict = Depends(get_current_commissioner)):
-    """
-    Returns a list of users (inspectors) who have no jurisdiction assigned.
-    """
-    if not db.conn:
-        # Mock DB
-        pending = []
-        for email, u in db._mock_users.items():
-            if u["role"] == "inspector" and not u.get("state"):
-                pending.append({"email": email, "role": u["role"]})
-        return pending
-    else:
-        with db.conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT email, role FROM users WHERE role = 'inspector' AND state IS NULL")
-            return cur.fetchall()
 
-@router.put("/users/{email}/jurisdiction")
-async def assign_jurisdiction(email: str, location: LocationUpdate, current_admin: dict = Depends(get_current_commissioner)):
-    """
-    Assigns state, district, city, ward to an officer.
-    """
-    target_user = db.get_user_by_email(email)
-    if not target_user:
-        raise HTTPException(status_code=404, detail="User not found")
-        
-    normalized_ward = location.ward.strip().lower() if location.ward else None
-    
-    if not db.conn:
-        if email in db._mock_users:
-            db._mock_users[email]["state"] = location.state
-            db._mock_users[email]["district"] = location.district
-            db._mock_users[email]["city"] = location.city
-            db._mock_users[email]["ward"] = normalized_ward
-    else:
-        with db.conn.cursor() as cur:
-            cur.execute(
-                "UPDATE users SET state = %s, district = %s, city = %s, ward = %s WHERE email = %s",
-                (location.state, location.district, location.city, normalized_ward, email)
-            )
-            
-    return {"message": f"Jurisdiction assigned successfully to {email}"}
