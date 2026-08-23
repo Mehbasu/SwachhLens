@@ -123,18 +123,17 @@ export default function LocationSetupPage() {
                 </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  disabled={!district}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none disabled:opacity-50"
-                  required
-                >
-                  <option value="" className="bg-[#0a0a0a]">Select City *</option>
-                  {district && indiaLocations.states.find(s => s.name === stateLoc)?.districts.find(d => d.name === district)?.cities.map((c) => (
-                    <option key={c} value={c} className="bg-[#0a0a0a]">{c}</option>
-                  ))}
-                </select>
+                  <select
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    disabled={!district}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none disabled:opacity-50"
+                  >
+                    <option value="" className="bg-[#0a0a0a]">City (Optional)</option>
+                    {district && indiaLocations.states.find(s => s.name === stateLoc)?.districts.find(d => d.name === district)?.cities.map((c) => (
+                      <option key={c} value={c} className="bg-[#0a0a0a]">{c}</option>
+                    ))}
+                  </select>
             <input
               type="text"
               value={ward}
