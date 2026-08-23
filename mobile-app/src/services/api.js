@@ -5,13 +5,11 @@ import { auth } from '../config/firebase';
 
 /**
  * BASE URL CONFIGURATION GUIDE FOR MOBILE APP DEVELOPMENT:
- * - Android Emulator: 'http://10.0.2.2:8001' (default Android studio loopback IP to host server)
- * - iOS Simulator / Local Web: 'http://localhost:8001'
- * - Physical Mobile Device (Expo Go app): Replace with your computer's local Wi-Fi IP address (e.g. 'http://192.168.1.100:8001')
+ * - Production: 'https://swachhlens-jnu9.onrender.com'
  */
 const BASE_URL =
   (typeof process !== 'undefined' && process.env && (process.env.EXPO_PUBLIC_API_URL || process.env.API_BASE_URL)) ||
-  (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
+  'https://swachhlens-jnu9.onrender.com';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

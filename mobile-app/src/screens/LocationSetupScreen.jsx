@@ -35,7 +35,7 @@ export default function LocationSetupScreen({ navigation }) {
 
       const BASE_URL =
         (typeof process !== 'undefined' && process.env && (process.env.EXPO_PUBLIC_API_URL || process.env.API_BASE_URL)) ||
-        (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
+        'https://swachhlens-jnu9.onrender.com';
 
       const response = await fetch(`${BASE_URL}/auth/jurisdiction/self`, {
         method: 'PATCH',

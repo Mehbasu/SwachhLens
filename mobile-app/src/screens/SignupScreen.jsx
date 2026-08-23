@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swachhlens-jnu9.onrender.com';
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('');

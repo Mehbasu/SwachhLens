@@ -8,7 +8,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 // Use a fallback for emulator if API_URL is not set
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'web' ? 'http://localhost:8001' : 'http://10.0.2.2:8001');
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swachhlens-jnu9.onrender.com';
 
 export default function LoginScreen({ navigation }) {
   const [showEmailInput, setShowEmailInput] = useState(false);
