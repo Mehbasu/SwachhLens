@@ -18,6 +18,8 @@ class SyncRequest(BaseModel):
     district: str = None
     city: str = None
     ward: str = None
+    name: str = None
+    avatar_url: str = None
 
 @router.post("/sync")
 async def sync_user(req: SyncRequest, token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/login"))):
@@ -38,7 +40,7 @@ async def sync_user(req: SyncRequest, token: str = Depends(OAuth2PasswordBearer(
             # User doesn't exist in Postgres yet. Create them.
             normalized_ward = req.ward.strip().lower() if req.ward else None
             # Store a dummy password hash since Firebase handles real passwords
-            db.insert_user(email, "FIREBASE_AUTH", req.role, req.state, req.district, req.city, normalized_ward)
+            db.insert_user(email, "FIREBASE_AUTH", req.role, req.state, req.district, req.city, normalized_ward, req.name, req.avatar_url)
             user = db.get_user_by_email(email)
             
         return {
@@ -47,7 +49,9 @@ async def sync_user(req: SyncRequest, token: str = Depends(OAuth2PasswordBearer(
             "state": user.get("state"),
             "district": user.get("district"),
             "city": user.get("city"),
-            "ward": user.get("ward")
+            "ward": user.get("ward"),
+            "name": user.get("name"),
+            "avatar_url": user.get("avatar_url")
         }
     except Exception as e:
         print(f"[Auth] Sync failed: {e}")
@@ -63,6 +67,10 @@ class LocationUpdate(BaseModel):
     district: str = None
     city: str = None
     ward: str = None
+
+class ProfileUpdate(BaseModel):
+    name: str = None
+    avatar_url: str = None
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -91,6 +99,64 @@ def get_current_commissioner(current_user: dict = Depends(get_current_user)):
             detail="Requires commissioner role"
         )
     return current_user
+
+@router.get("/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    """
+    Returns the current authenticated user's profile.
+    """
+    return {
+        "email": current_user["email"],
+        "role": current_user["role"],
+        "state": current_user.get("state"),
+        "district": current_user.get("district"),
+        "city": current_user.get("city"),
+        "ward": current_user.get("ward"),
+        "name": current_user.get("name"),
+        "avatar_url": current_user.get("avatar_url")
+    }
+
+@router.patch("/profile")
+async def update_profile(update: ProfileUpdate, current_user: dict = Depends(get_current_user)):
+    """
+    Updates the current user's profile (name, avatar).
+    """
+    if not db.conn:
+        email = current_user["email"]
+        if email in db._mock_users:
+            if update.name is not None:
+                db._mock_users[email]["name"] = update.name
+            if update.avatar_url is not None:
+                db._mock_users[email]["avatar_url"] = update.avatar_url
+    else:
+        with db.conn.cursor() as cur:
+            if update.name is not None:
+                cur.execute("UPDATE users SET name = %s WHERE email = %s", (update.name, current_user["email"]))
+            if update.avatar_url is not None:
+                cur.execute("UPDATE users SET avatar_url = %s WHERE email = %s", (update.avatar_url, current_user["email"]))
+    return {"message": "Profile updated successfully"}
+
+from fastapi import UploadFile, File, Request
+from services.upload_service import save_upload_file
+
+@router.post("/avatar")
+async def upload_avatar(request: Request, image: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    """
+    Uploads an avatar and updates the user's avatar_url.
+    """
+    base_url = str(request.base_url)
+    avatar_url = save_upload_file(image, base_url=base_url, prefix="avatar")
+    
+    if not db.conn:
+        email = current_user["email"]
+        if email in db._mock_users:
+            db._mock_users[email]["avatar_url"] = avatar_url
+    else:
+        with db.conn.cursor() as cur:
+            cur.execute("UPDATE users SET avatar_url = %s WHERE email = %s", (avatar_url, current_user["email"]))
+            
+    return {"avatar_url": avatar_url}
+
 
 @router.get("/users/pending")
 async def get_pending_users(current_admin: dict = Depends(get_current_commissioner)):

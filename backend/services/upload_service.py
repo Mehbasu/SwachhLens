@@ -5,7 +5,7 @@ from fastapi import UploadFile
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-def save_upload_file(file: UploadFile, base_url: str = "") -> str:
+def save_upload_file(file: UploadFile, base_url: str = "", prefix: str = "complaint") -> str:
     """
     Saves an uploaded image file locally to the /uploads directory.
     Returns the image URL.
@@ -15,7 +15,7 @@ def save_upload_file(file: UploadFile, base_url: str = "") -> str:
     if not ext or ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif"]:
         ext = ".jpg"
     
-    filename = f"complaint_{uuid.uuid4().hex[:12]}{ext.lower()}"
+    filename = f"{prefix}_{uuid.uuid4().hex[:12]}{ext.lower()}"
     file_path = os.path.join(UPLOAD_DIR, filename)
 
     content = file.file.read()

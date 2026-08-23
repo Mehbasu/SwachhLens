@@ -13,10 +13,48 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('inspector'); // 'inspector' | 'commissioner'
+  const [name, setName] = useState('');
+  const [stateLoc, setStateLoc] = useState('');
+  const [district, setDistrict] = useState('');
+  const [city, setCity] = useState('');
+  const [ward, setWard] = useState('');
+  const [isDetecting, setIsDetecting] = useState(false);
 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleAutoDetect = () => {
+    setIsDetecting(true);
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      setIsDetecting(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`);
+          const data = await res.json();
+          if (data && data.address) {
+            setStateLoc(data.address.state || '');
+            setDistrict(data.address.state_district || data.address.county || '');
+            setCity(data.address.city || data.address.town || data.address.village || '');
+            // Ward usually can't be auto-detected accurately via nominatim, leave it for manual entry or keep what's there
+          }
+        } catch (err) {
+          console.error("Failed to reverse geocode:", err);
+          setError("Failed to auto-detect location");
+        } finally {
+          setIsDetecting(false);
+        }
+      },
+      (error) => {
+        setError("Location permission denied or unavailable");
+        setIsDetecting(false);
+      }
+    );
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,13 +78,24 @@ export default function LoginPage() {
       const token = await userCredential.user.getIdToken();
 
       const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+      const payload = { role: role };
+      if (isRegister) {
+        payload.name = name;
+        if (role === 'inspector') {
+          payload.state = stateLoc;
+          payload.district = district;
+          payload.city = city;
+          payload.ward = ward;
+        }
+      }
+
       const response = await fetch(`${BASE_URL}/auth/sync`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ role: role })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
@@ -116,7 +165,7 @@ export default function LoginPage() {
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                 Access Level
               </label>
-              <div className="flex bg-white/5 border border-white/5 rounded-2xl p-1">
+              <div className="flex bg-white/5 border border-white/5 rounded-2xl p-1 mb-4">
                 <button
                   type="button"
                   onClick={() => setRole('inspector')}
@@ -140,6 +189,75 @@ export default function LoginPage() {
                   Administrator
                 </button>
               </div>
+
+              {/* Name Field */}
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Full Name
+              </label>
+              <div className="relative mb-4">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Insp. A. K. Verma"
+                  className="w-full px-4 py-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all placeholder:text-slate-600"
+                  required
+                />
+              </div>
+
+              {/* Jurisdiction Fields for Inspector */}
+              {role === 'inspector' && (
+                <div className="space-y-4 mb-4 border border-white/10 p-4 rounded-2xl bg-black/20">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Jurisdiction Area
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAutoDetect}
+                      disabled={isDetecting}
+                      className="text-[10px] bg-teal-500/20 text-teal-400 px-2 py-1 rounded-md hover:bg-teal-500/30 transition-colors disabled:opacity-50"
+                    >
+                      {isDetecting ? 'Detecting...' : 'Auto-detect GPS'}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={stateLoc}
+                      onChange={(e) => setStateLoc(e.target.value)}
+                      placeholder="State (e.g. Bihar)"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-xs focus:outline-none focus:bg-white/10"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      placeholder="District (e.g. Patna)"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-xs focus:outline-none focus:bg-white/10"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="City (e.g. Patna)"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-xs focus:outline-none focus:bg-white/10"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={ward}
+                      onChange={(e) => setWard(e.target.value)}
+                      placeholder="Ward (e.g. Ward 14)"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-xs focus:outline-none focus:bg-white/10"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
