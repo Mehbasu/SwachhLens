@@ -212,10 +212,17 @@ async def list_complaints(
         else:
             # Officials see complaints in their jurisdiction
             # Filter strictly by State and District, as requested
-            if current_user.get("state"):
-                items = [i for i in items if i.get("state") == current_user.get("state")]
-            if current_user.get("district"):
-                items = [i for i in items if i.get("district") == current_user.get("district")]
+            user_state = current_user.get("state")
+            user_district = current_user.get("district")
+            
+            if user_state:
+                items = [i for i in items if i.get("state") == user_state]
+            else:
+                # If an officer hasn't set their state yet, show them nothing so they don't see the whole country's data.
+                items = []
+
+            if user_district and items:
+                items = [i for i in items if i.get("district") == user_district]
 
     # Filters
     if status and status != "all":
@@ -251,10 +258,17 @@ async def get_hotspots(current_user: dict = Depends(get_current_user)):
     
     # RBAC Filtering
     if current_user:
-        if current_user.get("state"):
-            items = [i for i in items if i.get("state") == current_user.get("state")]
-        if current_user.get("district"):
-            items = [i for i in items if i.get("district") == current_user.get("district")]
+        if current_user.get("role") != "citizen":
+            user_state = current_user.get("state")
+            user_district = current_user.get("district")
+            
+            if user_state:
+                items = [i for i in items if i.get("state") == user_state]
+            else:
+                items = []
+
+            if user_district and items:
+                items = [i for i in items if i.get("district") == user_district]
 
     clusters: Dict[tuple, List[float]] = {}
 
@@ -288,10 +302,17 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
     
     # RBAC Filtering
     if current_user:
-        if current_user.get("state"):
-            items = [i for i in items if i.get("state") == current_user.get("state")]
-        if current_user.get("district"):
-            items = [i for i in items if i.get("district") == current_user.get("district")]
+        if current_user.get("role") != "citizen":
+            user_state = current_user.get("state")
+            user_district = current_user.get("district")
+            
+            if user_state:
+                items = [i for i in items if i.get("state") == user_state]
+            else:
+                items = []
+
+            if user_district and items:
+                items = [i for i in items if i.get("district") == user_district]
 
     total = len(items)
 
