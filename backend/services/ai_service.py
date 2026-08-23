@@ -47,10 +47,11 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
             prompt = f"""
             Analyze this image of municipal waste. 
             Classify it into exactly one of these categories: {', '.join(CATEGORIES)}.
+            If the image DOES NOT contain any form of waste, garbage, or civic issue (e.g., it is just a picture of a person, an animal, a normal street, or a random object), you MUST classify it as "not_waste".
             Estimate the volume into exactly one of these sizes: {', '.join(VOLUMES)}.
             To estimate the volume, compare the waste to visible scale references in the frame (e.g., a bin, curb, vehicle, person).
             Return ONLY a valid JSON object with the following keys:
-            - "category": the classified category string
+            - "category": the classified category string (use "not_waste" if no waste is present)
             - "volume": the estimated volume string
             - "ai_confidence": a float between 0 and 100
             - "reasoning": a short one-line string explaining your volume estimation based on scale references
@@ -89,10 +90,11 @@ def classify_waste(image_path: str) -> Dict[str, Any]:
             prompt = f"""
             Analyze this image of municipal waste. 
             Classify it into exactly one of these categories: {', '.join(CATEGORIES)}.
+            If the image DOES NOT contain any form of waste, garbage, or civic issue (e.g., it is just a picture of a person, an animal, a normal street, or a random object), you MUST classify it as "not_waste".
             Estimate the volume into exactly one of these sizes: {', '.join(VOLUMES)}.
             To estimate the volume, compare the waste to visible scale references in the frame (e.g., a bin, curb, vehicle, person).
             Return ONLY a valid JSON object with the following keys:
-            - "category": the classified category string
+            - "category": the classified category string (use "not_waste" if no waste is present)
             - "volume": the estimated volume string
             - "ai_confidence": a float between 0 and 100
             - "reasoning": a short one-line string explaining your volume estimation based on scale references
