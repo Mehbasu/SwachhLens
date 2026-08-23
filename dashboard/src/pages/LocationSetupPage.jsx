@@ -97,53 +97,37 @@ export default function LocationSetupPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-left mb-6">
-          <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={stateLoc}
-                  onChange={(e) => { setStateLoc(e.target.value); setDistrict(''); setCity(''); }}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none"
-                  required
-                >
-                  <option value="" className="bg-[#0a0a0a]">Select State *</option>
-                  {indiaLocations.states.map((s) => (
-                    <option key={s.name} value={s.name} className="bg-[#0a0a0a]">{s.name}</option>
-                  ))}
-                </select>
-                <select
-                  value={district}
-                  onChange={(e) => { setDistrict(e.target.value); setCity(''); }}
-                  disabled={!stateLoc}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none disabled:opacity-50"
-                  required
-                >
-                  <option value="" className="bg-[#0a0a0a]">Select District *</option>
-                  {stateLoc && indiaLocations.states.find(s => s.name === stateLoc)?.districts.map((d) => (
-                    <option key={d.name} value={d.name} className="bg-[#0a0a0a]">{d.name}</option>
-                  ))}
-                </select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
                   <select
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    disabled={!district}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none disabled:opacity-50"
+                    value={stateLoc}
+                    onChange={(e) => {
+                      setStateLoc(e.target.value);
+                      setDistrict('');
+                    }}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none"
+                    required
                   >
-                    <option value="" className="bg-[#0a0a0a]">City (Optional)</option>
-                    {district && indiaLocations.states.find(s => s.name === stateLoc)?.districts.find(d => d.name === district)?.cities.map((c) => (
-                      <option key={c} value={c} className="bg-[#0a0a0a]">{c}</option>
+                    <option value="" className="bg-[#0a0a0a]">Select State *</option>
+                    {indiaLocations.states.map((s) => (
+                      <option key={s.name} value={s.name} className="bg-[#0a0a0a]">{s.name}</option>
                     ))}
                   </select>
-            <input
-              type="text"
-              value={ward}
-              onChange={(e) => setWard(e.target.value)}
-              placeholder="Ward (Optional)"
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10"
-            />
-          </div>
+                  
+                  <select
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    disabled={!stateLoc}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-200 text-sm focus:outline-none focus:bg-white/10 appearance-none disabled:opacity-50"
+                    required
+                  >
+                    <option value="" className="bg-[#0a0a0a]">Select District *</option>
+                    {stateLoc && indiaLocations.states.find(s => s.name === stateLoc)?.districts.map((d) => (
+                      <option key={d.name} value={d.name} className="bg-[#0a0a0a]">{d.name}</option>
+                    ))}
+                  </select>
+            </div>
 
-          <button
+            <button
             type="submit"
             disabled={isLoading}
             className="w-full py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm flex items-center justify-center gap-2 transition-all mt-4 disabled:opacity-50"
