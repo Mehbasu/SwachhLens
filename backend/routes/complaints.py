@@ -150,8 +150,11 @@ async def create_complaint(
     rec_action = get_recommended_action(final_category, final_volume, priority_score)
 
     # Generate unique complaint ID
+    import random
+    import string
+    random_suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
     complaint_count = db.count_documents() + 1
-    generated_id = f"COMP-2026-{complaint_count:03d}"
+    generated_id = f"COMP-2026-{complaint_count:03d}-{random_suffix}"
 
     clean_comment = comment or ""
 

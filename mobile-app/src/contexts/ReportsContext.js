@@ -36,7 +36,13 @@ export function ReportsProvider({ children }) {
   }, []);
 
   const addReport = (newReport) => {
-    setReports((prev) => [newReport, ...prev]);
+    setReports((prev) => {
+      if (prev.some(r => r.id === newReport.id)) {
+        // If report already exists (e.g. backend returned an existing duplicate parent), update it instead
+        return prev.map(r => r.id === newReport.id ? newReport : r);
+      }
+      return [newReport, ...prev];
+    });
 
     // Also trigger a notification for the newly submitted report
     const newNotif = {
