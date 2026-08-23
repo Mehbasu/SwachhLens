@@ -46,6 +46,18 @@ export const categoriesConfig = {
     color: '#d97706',
     bgClass: 'bg-amber-600/10 text-amber-500 border-amber-600/20',
     description: 'Silt and solid garbage clogging storm drain'
+  },
+  medical_waste: {
+    label: 'Medical Waste',
+    color: '#e11d48',
+    bgClass: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+    description: 'Discarded syringes, medicines, or biomedical waste'
+  },
+  not_waste: {
+    label: 'Not Waste',
+    color: '#64748b',
+    bgClass: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+    description: 'Image does not contain valid civic waste'
   }
 };
 

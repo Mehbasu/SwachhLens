@@ -54,6 +54,20 @@ export const categoriesConfig = {
     color: '#d97706',
     icon: 'droplets',
     description: 'Clogged storm drain or open sewer overflow'
+  },
+  medical_waste: {
+    label: 'Medical Waste',
+    shortLabel: 'Medical',
+    color: '#e11d48',
+    icon: 'cross',
+    description: 'Discarded syringes, medicines, or biomedical waste'
+  },
+  not_waste: {
+    label: 'Not Waste',
+    shortLabel: 'Not Waste',
+    color: '#64748b',
+    icon: 'x-circle',
+    description: 'Image does not contain valid civic waste'
   }
 };
 

@@ -25,7 +25,9 @@ CATEGORIES = [
     "organic_waste",
     "e_waste",
     "hazardous_waste",
-    "drain_blockage"
+    "medical_waste",
+    "drain_blockage",
+    "not_waste"
 ]
 
 VOLUMES = ["small", "medium", "large", "very_large"]
