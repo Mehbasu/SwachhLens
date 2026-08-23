@@ -208,14 +208,11 @@ async def list_complaints(
             items = [i for i in items if i.get("reporter_email") == current_user.get("email")]
         else:
             # Officials see complaints in their jurisdiction
+            # Filter strictly by State and District, as requested
             if current_user.get("state"):
                 items = [i for i in items if i.get("state") == current_user.get("state")]
             if current_user.get("district"):
                 items = [i for i in items if i.get("district") == current_user.get("district")]
-            if current_user.get("city"):
-                items = [i for i in items if i.get("city") == current_user.get("city")]
-            if current_user.get("ward"):
-                items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     # Filters
     if status and status != "all":
@@ -255,10 +252,6 @@ async def get_hotspots(current_user: dict = Depends(get_current_user)):
             items = [i for i in items if i.get("state") == current_user.get("state")]
         if current_user.get("district"):
             items = [i for i in items if i.get("district") == current_user.get("district")]
-        if current_user.get("city"):
-            items = [i for i in items if i.get("city") == current_user.get("city")]
-        if current_user.get("ward"):
-            items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     clusters: Dict[tuple, List[float]] = {}
 
@@ -296,10 +289,6 @@ async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
             items = [i for i in items if i.get("state") == current_user.get("state")]
         if current_user.get("district"):
             items = [i for i in items if i.get("district") == current_user.get("district")]
-        if current_user.get("city"):
-            items = [i for i in items if i.get("city") == current_user.get("city")]
-        if current_user.get("ward"):
-            items = [i for i in items if i.get("ward") == current_user.get("ward")]
 
     total = len(items)
 
@@ -405,10 +394,6 @@ async def get_complaint_by_id(id: str, current_user: dict = Depends(get_current_
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
     if current_user.get("district") and item.get("district") != current_user.get("district"):
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
-    if current_user.get("city") and item.get("city") != current_user.get("city"):
-        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
-    if current_user.get("ward") and item.get("ward") != current_user.get("ward"):
-        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
         
     item["priority_score"] = get_dynamic_priority(item)
     return item
@@ -428,10 +413,6 @@ async def update_complaint_status(id: str, payload: StatusUpdate, current_user: 
     if current_user.get("state") and item.get("state") != current_user.get("state"):
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
     if current_user.get("district") and item.get("district") != current_user.get("district"):
-        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
-    if current_user.get("city") and item.get("city") != current_user.get("city"):
-        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
-    if current_user.get("ward") and item.get("ward") != current_user.get("ward"):
         raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
 
     update_fields = {"status": payload.status}
