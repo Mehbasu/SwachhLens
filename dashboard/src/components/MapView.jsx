@@ -117,12 +117,26 @@ export default function MapView({ complaints = [], height = '500px', selectedId 
     fetchCityCoords();
   }, [complaints]);
 
-  // Memoize marker icons
+  // Memoize marker icons and add jitter to overlapping coordinates
   const markers = useMemo(() => {
-    return complaints.map((c) => ({
-      ...c,
-      icon: createCustomIcon(c.priority_score)
-    }));
+    const seen = new Set();
+    return complaints.map((c) => {
+      let lat = parseFloat(c.gps?.lat || 0);
+      let lng = parseFloat(c.gps?.lng || 0);
+      const coordStr = `${lat},${lng}`;
+      if (seen.has(coordStr)) {
+        // Add tiny random jitter to prevent perfect overlap (~10 meters)
+        lat += (Math.random() - 0.5) * 0.0002;
+        lng += (Math.random() - 0.5) * 0.0002;
+      }
+      seen.add(coordStr);
+      
+      return {
+        ...c,
+        jitteredGps: { lat, lng },
+        icon: createCustomIcon(c.priority_score)
+      };
+    });
   }, [complaints]);
 
   return (
@@ -140,19 +154,23 @@ export default function MapView({ complaints = [], height = '500px', selectedId 
         />
 
         {markers.map((c) => (
-          <Marker key={c.id} position={[c.gps.lat, c.gps.lng]} icon={c.icon}>
+          <Marker key={c.id} position={[c.jitteredGps.lat, c.jitteredGps.lng]} icon={c.icon}>
             <Popup className="swachh-popup">
               <div className="w-64 p-3 bg-slate-900 text-slate-100 rounded-lg space-y-2.5">
                 <div className="relative h-28 w-full rounded-md overflow-hidden bg-slate-800">
                   <img
-                    src={c.image_url}
+                    src={c.image_url || 'https://via.placeholder.com/400x300/1e293b/94a3b8?text=No+Image'}
                     alt={c.category}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/400x300/1e293b/94a3b8?text=No+Image';
+                    }}
                   />
                   <div className="absolute top-2 left-2">
                     <PriorityBadge score={c.priority_score} size="small" />
                   </div>
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute bottom-2 right-2">
                     <StatusTag status={c.status} size="small" />
                   </div>
                 </div>
