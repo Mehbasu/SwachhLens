@@ -6,6 +6,14 @@ Built for **THE TECHNOVA CHALLENGE**. SwachhLens empowers citizens to report was
 
 ---
 
+## 🚀 Live Demo
+
+- **Admin Dashboard (Firebase Hosting):** [https://swachhlens-8ba8b.web.app](https://swachhlens-8ba8b.web.app)
+- **Backend API (Render):** [https://swachhlens-jnu9.onrender.com](https://swachhlens-jnu9.onrender.com)
+- **Mobile App:** Run locally using Expo Go (see below).
+
+---
+
 ## 🚀 Core Features
 
 ### For Citizens (Mobile App)
@@ -21,7 +29,7 @@ Built for **THE TECHNOVA CHALLENGE**. SwachhLens empowers citizens to report was
 - 🎨 **Theme System** — Light / Dark / System theme with full UI adaptation.
 
 ### For Commissioners (Admin Panel)
-- 👮 **Jurisdiction Assignment** — assign State → District → City → Ward to pending officers.
+- 👮 **Jurisdiction Assignment** — assign State → District → City to pending officers.
 - ✅ **One-click Assign** — cascading dropdowns prevent invalid selections.
 
 ---
@@ -44,25 +52,25 @@ Built for **THE TECHNOVA CHALLENGE**. SwachhLens empowers citizens to report was
 - **Jurisdiction Scoping** — inspectors can only view complaints in their assigned area.
 - **Firebase Auth** — Google OAuth + JWT; tokens never stored beyond session.
 - **Server-side Geocoding** — client-supplied location is discarded; GPS coordinates are always resolved server-side.
-- **Secrets** — all API keys (Gemini, Groq, LocationIQ, Firebase Admin SDK) live exclusively in `backend/.env`. The Firebase service account JSON is gitignored.
+- **Secrets** — all API keys (Gemini, Groq, LocationIQ, Firebase Admin SDK, Postgres) live exclusively as environment variables on production servers.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Mobile App | React Native (Expo) |
-| Web Dashboard | React + Vite + Tailwind CSS v4 |
-| Backend API | Python (FastAPI) |
-| Database | PostgreSQL (prod) / in-memory mock (dev) |
-| AI Engine | Google Gemini 2.5 Flash Vision + Groq fallback |
-| Auth | Firebase Authentication |
-| Maps | Leaflet + OpenStreetMap (Nominatim geocoding) |
+| Layer | Technology | Hosting |
+|-------|-----------|---------|
+| Mobile App | React Native (Expo) | Local/APK |
+| Web Dashboard | React + Vite + Tailwind CSS v4 | Firebase Hosting |
+| Backend API | Python (FastAPI) | Render |
+| Database | PostgreSQL | Render |
+| AI Engine | Google Gemini 2.5 Flash Vision + Groq fallback | - |
+| Auth | Firebase Authentication | Firebase |
+| Maps | Leaflet + OpenStreetMap (Nominatim geocoding) | - |
 
 ---
 
-## ⚙️ Getting Started
+## ⚙️ Getting Started (Local Development)
 
 ### Prerequisites
 - Node.js ≥ 18, Python ≥ 3.10, Git
@@ -89,7 +97,7 @@ Create `backend/.env`:
 GEMINI_API_KEY="your_gemini_key"
 GROQ_API_KEY="your_groq_key"
 LOCATIONIQ_API_KEY="your_locationiq_key"
-FIREBASE_PROJECT_ID="your_firebase_project_id"
+PG_URI="postgresql://localhost:5432/SwachhLens"
 ```
 
 Place your Firebase Admin SDK JSON at `backend/firebase-adminsdk.json` (**never commit this file**).
@@ -131,18 +139,18 @@ Scan the QR code with Expo Go on your phone.
 
 ## 📁 Project Structure
 
-```
+```text
 SwachhLens/
 ├── backend/               # FastAPI server
 │   ├── routes/            # auth.py, complaints.py
 │   ├── services/          # AI, priority, dedup, upload
 │   ├── models/            # Pydantic schemas
-│   └── db/                # Database layer
+│   └── db/                # PostgreSQL layer
 ├── dashboard/             # React/Vite web dashboard
 │   └── src/
 │       ├── components/    # Navbar, MapView, ComplaintTable…
 │       ├── hooks/         # useNotifications (real-time polling)
-│       ├── pages/         # DashboardHome, ComplaintsList, AdminPanel…
+│       ├── pages/         # DashboardHome, LoginPage, AdminPanel…
 │       └── services/      # api.js (Axios client)
 └── mobile-app/            # Expo React Native citizen app
     └── src/screens/       # Login, Signup, Home, Report
