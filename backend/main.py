@@ -18,7 +18,13 @@ app = FastAPI(
 # Initialize Firebase Admin SDK
 import json
 try:
-    cred = credentials.Certificate(os.path.join(os.path.dirname(__file__), 'firebase-adminsdk.json'))
+    firebase_cred_json = os.getenv("FIREBASE_CREDENTIALS")
+    if firebase_cred_json:
+        cred_dict = json.loads(firebase_cred_json)
+        cred = credentials.Certificate(cred_dict)
+    else:
+        cred = credentials.Certificate(os.path.join(os.path.dirname(__file__), 'firebase-adminsdk.json'))
+        
     firebase_admin.initialize_app(cred)
     print("[Firebase] Admin SDK initialized successfully")
 except Exception as e:

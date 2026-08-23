@@ -205,7 +205,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Jurisdiction</span>
                     <span className="text-sm font-medium text-slate-200">
-                      {[user.ward, user.city, user.district, user.state].filter(Boolean).join(', ')}
+                      {[user.city, user.district, user.state].filter(Boolean).join(', ')}
                     </span>
                   </div>
                 </div>
