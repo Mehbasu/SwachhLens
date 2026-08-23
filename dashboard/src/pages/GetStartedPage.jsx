@@ -65,13 +65,13 @@ export default function GetStartedPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={handleGetStarted}
-            className="px-8 py-3 rounded-xl bg-slate-200 hover:bg-white text-slate-900 font-semibold text-base transition-colors"
+            className="px-8 py-3 rounded-xl bg-slate-200 hover:bg-white text-slate-900 font-semibold text-base transition-colors inline-block"
           >
             Get started
           </button>
           <button 
             onClick={handleLogin}
-            className="px-8 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium text-base transition-colors"
+            className="px-8 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium text-base transition-colors inline-block"
           >
             Learn more
           </button>
