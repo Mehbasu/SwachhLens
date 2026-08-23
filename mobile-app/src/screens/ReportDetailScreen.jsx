@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   
+  Alert,
   StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,10 +15,11 @@ import { useReports } from '../contexts/ReportsContext';
 import { useTheme } from '../contexts/ThemeContext';
 import StatusBadge from '../components/StatusBadge';
 import { categoriesConfig, volumeConfig } from '../data/mockData';
+import { withdrawComplaint } from '../services/api';
 
 export default function ReportDetailScreen({ route, navigation }) {
   const { reportId } = route.params || {};
-  const { reports } = useReports();
+  const { reports, deleteReport } = useReports();
   const { colorScheme } = useTheme();
   const isDark = colorScheme === 'dark';
   const currentStyles = styles(isDark);
@@ -52,6 +54,29 @@ export default function ReportDetailScreen({ route, navigation }) {
   ];
 
   const timelineSteps = report?.timeline || defaultTimeline;
+
+  const handleWithdraw = () => {
+    Alert.alert(
+      "Withdraw Report",
+      "Are you sure you want to withdraw this complaint? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Withdraw", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await withdrawComplaint(report.id);
+              deleteReport(report.id);
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert("Error", "Failed to withdraw report. Please try again.");
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={currentStyles.safeArea}>
@@ -181,8 +206,15 @@ export default function ReportDetailScreen({ route, navigation }) {
             );
           })}
         </View>
+
+        {report?.status !== 'resolved' && (
+          <TouchableOpacity style={currentStyles.withdrawBtn} onPress={handleWithdraw}>
+            <Text style={currentStyles.withdrawBtnText}>Withdraw Report</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </SafeAreaView>
+
   );
 }
 
@@ -393,5 +425,20 @@ const styles = (isDark) => StyleSheet.create({
   stepTime: {
     fontSize: 11,
     color: isDark ? '#94a3b8' : '#64748b',
+  },
+  withdrawBtn: {
+    marginTop: 24,
+    backgroundColor: isDark ? '#450a0a' : '#fee2e2',
+    borderWidth: 1,
+    borderColor: isDark ? '#7f1d1d' : '#fca5a5',
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+  withdrawBtnText: {
+    color: isDark ? '#f87171' : '#ef4444',
+    fontWeight: '700',
+    fontSize: 14,
   }
 });
+

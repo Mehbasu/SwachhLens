@@ -115,3 +115,16 @@ export async function submitComplaint(data) {
     throw error;
   }
 }
+
+/**
+ * Withdraw (delete) a complaint by ID
+ */
+export async function withdrawComplaint(id) {
+  try {
+    const response = await apiClient.delete(`/complaints/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to withdraw complaint ${id}:`, error.message);
+    throw error;
+  }
+}

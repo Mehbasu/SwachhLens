@@ -429,3 +429,21 @@ async def update_complaint_status(id: str, payload: StatusUpdate, current_user: 
     updated_item = db.find_one({"id": id})
     updated_item["priority_score"] = get_dynamic_priority(updated_item)
     return updated_item
+
+
+@router.delete("/complaints/{id}", status_code=204)
+async def delete_complaint(id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Withdraws (deletes) a complaint by ID.
+    Only the citizen who created it (or an authorized official) can delete it.
+    """
+    item = db.find_one({"id": id})
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Complaint with ID '{id}' not found")
+        
+    if current_user and current_user.get("role") == "citizen":
+        if item.get("reporter_email") and item.get("reporter_email") != current_user.get("email"):
+            raise HTTPException(status_code=403, detail="Not authorized to withdraw this complaint")
+            
+    db.delete_one({"id": id})
+    return None

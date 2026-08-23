@@ -65,6 +65,11 @@ export function ReportsProvider({ children }) {
     );
   };
 
+  const deleteReport = (reportId) => {
+    setReports((prev) => prev.filter(r => r.id !== reportId));
+  };
+
+
   const getStats = () => {
     const total = reports.length;
     const submitted = reports.filter((r) => r.status === 'submitted').length;
@@ -86,6 +91,7 @@ export function ReportsProvider({ children }) {
         loading,
         notifications,
         addReport,
+        deleteReport,
         refreshReports: fetchReportsFromBackend,
         markNotificationRead,
         getStats,
